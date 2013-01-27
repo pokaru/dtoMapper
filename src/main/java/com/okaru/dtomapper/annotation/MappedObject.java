@@ -1,4 +1,4 @@
-package com.okaru.dtomapper.annotations;
+package com.okaru.dtomapper.annotation;
 
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;

@@ -2,9 +2,9 @@ package com.okaru.dtomapper.dto;
 
 import java.util.Date;
 
-import com.okaru.dtomapper.annotations.MappedObject;
-import com.okaru.dtomapper.annotations.Ignore;
-import com.okaru.dtomapper.annotations.MappedField;
+import com.okaru.dtomapper.annotation.Ignore;
+import com.okaru.dtomapper.annotation.MappedField;
+import com.okaru.dtomapper.annotation.MappedObject;
 
 @MappedObject(key = "address")
 public class RegistrationDTO {

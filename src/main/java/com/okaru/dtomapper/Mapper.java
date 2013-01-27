@@ -3,9 +3,9 @@ package com.okaru.dtomapper;
 import java.lang.reflect.Field;
 import java.util.Map;
 
-import com.okaru.dtomapper.annotations.MappedObject;
-import com.okaru.dtomapper.annotations.Ignore;
-import com.okaru.dtomapper.annotations.MappedField;
+import com.okaru.dtomapper.annotation.Ignore;
+import com.okaru.dtomapper.annotation.MappedField;
+import com.okaru.dtomapper.annotation.MappedObject;
 import com.okaru.dtomapper.exception.MapperException;
 
 /**
