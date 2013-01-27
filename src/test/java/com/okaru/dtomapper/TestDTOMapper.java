@@ -33,7 +33,7 @@ public class TestDTOMapper {
 		modelMap.put("owner", business.getOwner());
 		
 		//Start the mapping
-		Mapper.toModel(dto, modelMap);
+		Mapper.fromDto(dto, modelMap);
 
 		Assert.assertEquals(dto.getBusinessName(), business.getName());
 		Assert.assertEquals(dto.getStreet(), business.getAddress().getStreet());
@@ -77,7 +77,7 @@ public class TestDTOMapper {
 		modelMap.put("address", business.getAddress());
 		modelMap.put("owner", business.getOwner());
 		
-		Mapper.toModel(dto, modelMap);
+		Mapper.fromDto(dto, modelMap);
 		
 		//verify registration date isn't mapped to business founded date
 		Assert.assertNull(business.getFounded());

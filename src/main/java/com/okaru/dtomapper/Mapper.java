@@ -23,7 +23,7 @@ public class Mapper{
 	 * @param someDto
 	 * @param modelMap
 	 */
-	public static void toModel(Object someDto, Map<String, Object> modelMap){
+	public static void fromDto(Object someDto, Map<String, Object> modelMap){
 		beginMapping(someDto, modelMap, true);
 	}
 
