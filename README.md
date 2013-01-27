@@ -19,12 +19,12 @@ Mapper.toDto(dto, objectMap);
 
 Annotations
 -----------
-**@MappedObject(key="someKey")**
+**@MappedObject(key="someKey")** - class-level
 > When you annotate your DTO with this annotation, you set which object your DTO will map to.  The **key** attribute is required and used to reference which object in a map (discussed later) your DTO will map to.
 > All DTO fields, by default, will map to fields in the mapped object referenced **key**.
 > The mapper will assume the field names in the DTO are identical to the field names in the mapped object.
 
-**@MappedField**
+**@MappedField** - field-level
 > #### Attribute: field="someFieldName"
 > In the case fields names in the mapped object aren't the same as the field names in the DTO, you can annotate a DTO field with this annotation.  Using the **field** attribute, you can specify the field name in the mapped object that the annotated DTO field will map to.
 
@@ -33,7 +33,7 @@ Annotations
 > If each field in the in the DTO is annotated with this annotation and **mappedObjectKey** is set, the @MappedObject class-level annotation isn't necessary or required.
 
 
-**@Ignore**
+**@Ignore** - field-level
 > If you ever need to declare a field in a DTO that shouldn't be mapped, annotating that field with this annotation will have the mapper ignore that field during the mapping process.
 
 Object Map
