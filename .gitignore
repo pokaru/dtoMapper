@@ -6,7 +6,7 @@
 *.ear
 
 # Eclipse Files #
-.settings/org.eclipse.m2e.core.prefs
-.settings/org.eclipse.m2e.core.prefs
+.settings
+.target
 .project
 .classpath
