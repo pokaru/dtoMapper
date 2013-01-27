@@ -2,7 +2,9 @@ dtoMapper
 =========
 [![Build Status](https://travis-ci.org/pokaru/dtoMapper.png)](https://travis-ci.org/pokaru/dtoMapper)
 
-A quick stab at a simple framework to automate the process of mapping dto objects to other objects.
+I'm sure there may be othere tools out there, but this is my quick stab at a simple framework to automate the process of mapping dto objects to other objects.
+
+With dtoMapper, you can transer DTO field values to **multiple** objects without calling a single getter or setter.
 
 Usage
 -----
@@ -19,21 +21,21 @@ Mapper.toDto(dto, objectMap);
 
 Annotations
 -----------
-**@MappedObject(key="someKey")** - class-level
+**@MappedObject(key="someKey")** (class-level)
 > When you annotate your DTO with this annotation, you set which object your DTO will map to.  The **key** attribute is required and used to reference which object in a map (discussed later) your DTO will map to.
-> All DTO fields, by default, will map to fields in the mapped object referenced **key**.
+> All DTO fields, by default, will map to fields in the mapped object, referenced by the **key**.
 > The mapper will assume the field names in the DTO are identical to the field names in the mapped object.
 
-**@MappedField** - field-level
+**@MappedField** (field-level)
 > #### Attribute: field="someFieldName"
-> In the case fields names in the mapped object aren't the same as the field names in the DTO, you can annotate a DTO field with this annotation.  Using the **field** attribute, you can specify the field name in the mapped object that the annotated DTO field will map to.
+> In the case where fields names in the mapped object aren't the same as the field names in the DTO, you can annotate a DTO field with this annotation.  Using the **field** attribute, you can specify the field name in the mapped object that the annotated DTO field will map to.
 
 > #### Attribute: mappedOjbectKey="someKey"
 > In addition to **field**, the @MappedField annotation has another attribute, **mappedObjectKey**.  Setting this attribute is equivalent to setting the @MappedObject annotation, but at the field-level.  Using this attribute, you can map a DTO field to an object other than the one referenced by the @MappedObject class-level annotation.
 > If each field in the in the DTO is annotated with this annotation and **mappedObjectKey** is set, the @MappedObject class-level annotation isn't necessary or required.
 
 
-**@Ignore** - field-level
+**@Ignore** (field-level)
 > If you ever need to declare a field in a DTO that shouldn't be mapped, annotating that field with this annotation will have the mapper ignore that field during the mapping process.
 
 Object Map
