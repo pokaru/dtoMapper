@@ -7,6 +7,6 @@
 
 # Eclipse Files #
 .settings
-.target
+target
 .project
 .classpath
