@@ -2,9 +2,9 @@ dtoMapper
 =========
 [![Build Status](https://travis-ci.org/pokaru/dtoMapper.png)](https://travis-ci.org/pokaru/dtoMapper)
 
-I'm sure there may be othere tools out there, but this is my quick stab at a simple framework to automate the process of mapping dto objects to other objects.
+I'm sure there may be othere tools out there, but this is my quick stab at a simple framework to automate the process of mapping dto objects to other objects **_(and vice-versa)_**.
 
-With dtoMapper, you can transer DTO field values to **multiple** objects without calling a single getter or setter.
+With dtoMapper, you can transer DTO field values **to and from multiple** objects without calling a single getter or setter.
 
 Usage
 -----
@@ -24,6 +24,8 @@ Mapper.toDto(dto, objectMap);
 
 Annotations
 -----------
+Mapping configurations are purely annotation-based.  All the configuration annotations associated with this tool are described below.
+
 **@MappedObject(key="someKey")** (class-level)
 > When you annotate your DTO with this annotation, you set which object your DTO will map to.  The **key** attribute is required and used to reference which object in a map (discussed later) your DTO will map to.
 > All DTO fields, by default, will map to fields in the mapped object, referenced by the **key**.
