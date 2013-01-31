@@ -1,6 +1,6 @@
 dtoMapper
 =========
-[![Build Status](https://travis-ci.org/pokaru/dtoMapper.png)](https://travis-ci.org/pokaru/dtoMapper)
+[![Build Status](https://travis-ci.org/pokaru/dtoMapper.png?branch=master)](https://travis-ci.org/pokaru/dtoMapper)
 
 I'm sure there may be other tools out there, but this is my quick stab at a simple framework to automate the process of mapping dto objects to other objects **_(and vice-versa)_**.
 
