@@ -17,8 +17,8 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 public @interface MappedObject {
 	/**
-	 * The model field is mandatory.  This tells the mapper which class to map
-	 * dto values to/from.
+	 * The key field is mandatory and is a reference to the object stored in the
+	 * object map.  This tells the mapper which class to map dto values to/from.
 	 * 
 	 * @return
 	 */

@@ -33,4 +33,20 @@ public @interface MappedField {
 	 * @return
 	 */
 	String field() default "";
+	
+	/**
+	 * Optionally, specifies what this DTO's field value will be mapped to
+	 * within the mapped object.  FIELD is the default.  If SETTER is selected,
+	 * the field name will be used to find the setter for that field.  When the
+	 * setter method for the mapped object field is found, that setter will be
+	 * used to set the mapped object's value.
+	 * 
+	 * @return
+	 */
+	MapsTo mapsTo() default MapsTo.FIELD;
+	
+	public enum MapsTo {
+		FIELD,
+		SETTER
+	}
 }

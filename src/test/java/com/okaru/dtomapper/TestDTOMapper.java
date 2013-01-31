@@ -4,100 +4,417 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
+import junit.framework.Assert;
+
 import org.junit.Test;
 
-import com.okaru.dtomapper.dto.RegistrationDTO;
+import com.okaru.dtomapper.dto.AddressDTO;
+import com.okaru.dtomapper.dto.BusinessAddressDTO;
+import com.okaru.dtomapper.dto.BusinessAddressEmbeddedDTO;
+import com.okaru.dtomapper.dto.BusinessDTO;
+import com.okaru.dtomapper.dto.UserDTO;
+import com.okaru.dtomapper.exception.MapperException;
 import com.okaru.dtomapper.model.Address;
 import com.okaru.dtomapper.model.Business;
 import com.okaru.dtomapper.model.User;
 
+/**
+ * A suite of test to test the dto <code>Mapper</code>
+ * 
+ * @author pokaru
+ * 
+ */
 public class TestDTOMapper {
+	private TestDTOMapperHelper testHelper = new TestDTOMapperHelper();
+
+	/* Success Cases */
 
 	@Test
-	public void testMappingToAndFrom(){
-		//Get your dto
-		RegistrationDTO dto = getTestDTO();
-		
-		//Get your models
-		Business business = new Business();
-		User user = new User();
+	public void testClassLevelMappingFromDtoToMappedField() {
+		// add object to the map
+		Map<String, Object> objectMap = new HashMap<String, Object>();
 		Address address = new Address();
-		business.setAddress(address);
-		business.setOwner(user);
+		objectMap.put("address", address);
 
-		//Place models into a map using an arbitrary key
-		Map<String, Object> modelMap = new HashMap<String, Object>();
-		modelMap.put("business", business);
-		modelMap.put("address", business.getAddress());
-		modelMap.put("owner", business.getOwner());
-		
-		//Start the mapping
-		Mapper.fromDto(dto, modelMap);
+		// get a test dto
+		AddressDTO someDto = testHelper.getTestAddressDTO();
 
-		Assert.assertEquals(dto.getBusinessName(), business.getName());
-		Assert.assertEquals(dto.getStreet(), business.getAddress().getStreet());
-		Assert.assertEquals(dto.getCity(), business.getAddress().getCity());
-		Assert.assertEquals(dto.getState(), business.getAddress().getState());
-		Assert.assertEquals(dto.getCountry(), business.getAddress().getCountry());
-		Assert.assertEquals(dto.getZip(), business.getAddress().getZip());
-		Assert.assertEquals(dto.getUsername(), business.getOwner().getUsername());
-		Assert.assertEquals(dto.getPassword(), business.getOwner().getPassword());
-		
-		//now go the other way
-		RegistrationDTO newDto = new RegistrationDTO();
-		Mapper.toDto(newDto, modelMap);
-
-		Assert.assertEquals(dto.getBusinessName(), newDto.getBusinessName());
-		Assert.assertEquals(dto.getStreet(), newDto.getStreet());
-		Assert.assertEquals(dto.getCity(), newDto.getCity());
-		Assert.assertEquals(dto.getState(), newDto.getState());
-		Assert.assertEquals(dto.getCountry(), newDto.getCountry());
-		Assert.assertEquals(dto.getZip(), newDto.getZip());
-		Assert.assertEquals(dto.getUsername(), newDto.getUsername());
-		Assert.assertEquals(dto.getPassword(), newDto.getPassword());
+		// perform mapping and validate
+		Mapper.fromDto(someDto, objectMap);
+		Assert.assertEquals(someDto.getCity(), address.getCity());
 	}
 
 	@Test
-	public void testIgnoreAnnotation(){
-		//Get your dto
-		RegistrationDTO dto = getTestDTO();
-		dto.setRegistrationTime(new Date());
-		
-		//Get your models
+	public void testFieldLevelMappingFromDtoToMappedField() {
+		// add object to the map
+		Map<String, Object> objectMap = new HashMap<String, Object>();
 		Business business = new Business();
-		User user = new User();
-		Address address = new Address();
-		business.setAddress(address);
-		business.setOwner(user);
+		objectMap.put("business", business);
 
-		//Place models into a map
-		Map<String, Object> modelMap = new HashMap<String, Object>();
-		modelMap.put("business", business);
-		modelMap.put("address", business.getAddress());
-		modelMap.put("owner", business.getOwner());
-		
-		Mapper.fromDto(dto, modelMap);
-		
-		//verify registration date isn't mapped to business founded date
-		Assert.assertNull(business.getFounded());
+		// get a test dto
+		BusinessDTO someDto = testHelper.getTestBusinessDTO();
+
+		// perform mapping and validate
+		Mapper.fromDto(someDto, objectMap);
+		Assert.assertEquals(someDto.getName(), business.getName());
 	}
-	
-	private RegistrationDTO getTestDTO(){
-		RegistrationDTO dto = new RegistrationDTO();
-		//Business info
-		dto.setBusinessName("Some Business");
+
+	@Test
+	public void testClassLevelMappingToDtoFromMappedField() {
+		// add object to the map
+		Map<String, Object> objectMap = new HashMap<String, Object>();
+		Address address = new Address();
+		address.setCity("San Jose");
+		objectMap.put("address", address);
+
+		// get a new dto
+		AddressDTO someDto = new AddressDTO();
+
+		// perform mapping and validate
+		Mapper.toDto(someDto, objectMap);
+		Assert.assertNotNull(someDto.getCity());
+		Assert.assertEquals(someDto.getCity(), address.getCity());
+	}
+
+	@Test
+	public void testFieldLevelMappingToDtoFromMappedField() {
+		// add object to the map
+		Map<String, Object> objectMap = new HashMap<String, Object>();
+		Business business = new Business();
+		business.setName("Okaru Corp.");
+		objectMap.put("business", business);
+
+		// get a new dto
+		BusinessDTO someDto = new BusinessDTO();
+
+		// perform mapping and validate
+		Mapper.toDto(someDto, objectMap);
+		Assert.assertNotNull(someDto.getName());
+		Assert.assertEquals(someDto.getName(), business.getName());
+	}
+
+	@Test
+	public void testClassLevelMappingFromDtoDifferentFieldName() {
+		// add object to the map
+		Map<String, Object> objectMap = new HashMap<String, Object>();
+		Address address = new Address();
+		objectMap.put("address", address);
+
+		// get a test dto
+		AddressDTO someDto = testHelper.getTestAddressDTO();
+
+		// perform mapping and validate
+		Mapper.fromDto(someDto, objectMap);
+		Assert.assertEquals(someDto.getAddressState(), address.getState());
+	}
+
+	@Test
+	public void testFieldLevelMappingFromDtoToDifferentMappedFieldName() {
+		// add object to the map
+		Map<String, Object> objectMap = new HashMap<String, Object>();
+		Business business = new Business();
+		objectMap.put("business", business);
+
+		// get a test dto
+		BusinessDTO someDto = testHelper.getTestBusinessDTO();
+
+		// perform mapping and validate
+		Mapper.fromDto(someDto, objectMap);
+		Assert.assertEquals(someDto.getDateFounded(), business.getFounded());
+	}
+
+	@Test
+	public void testClassLevelMappingToDtoFromDifferentMappedFieldName() {
+		// add object to the map
+		Map<String, Object> objectMap = new HashMap<String, Object>();
+		Address address = new Address();
+		address.setState("Texas");
+		objectMap.put("address", address);
+
+		// get a test dto
+		AddressDTO someDto = new AddressDTO();
+
+		// perform mapping and validate
+		Mapper.toDto(someDto, objectMap);
+		Assert.assertNotNull(someDto.getAddressState());
+		Assert.assertEquals(someDto.getAddressState(), address.getState());
+	}
+
+	@Test
+	public void testFieldLevelMappingToDtoFromDifferentMappedFieldName() {
+		// add object to the map
+		Map<String, Object> objectMap = new HashMap<String, Object>();
+		Business business = new Business();
+		business.setFounded(new Date());
+		objectMap.put("business", business);
+
+		// get a test dto
+		BusinessDTO someDto = new BusinessDTO();
+
+		// perform mapping and validate
+		Mapper.toDto(someDto, objectMap);
+		Assert.assertNotNull(someDto.getDateFounded());
+		Assert.assertEquals(someDto.getDateFounded(), business.getFounded());
+	}
+
+	@Test
+	public void testMappingToMultipleObjectsToMappedFields() {
+		// add object to the map
+		Map<String, Object> objectMap = new HashMap<String, Object>();
+		Address address = new Address();
+		Business business = new Business();
+		objectMap.put("business", business);
+		objectMap.put("address", address);
+
+		// get a test dto
+		BusinessAddressDTO someDto = testHelper.getTestBusinessAddressDTO();
+
+		// perform mapping and validate
+		Mapper.fromDto(someDto, objectMap);
+		Assert.assertNotNull(someDto.getCity());
+		Assert.assertNotNull(someDto.getZip());
+		Assert.assertNotNull(someDto.getAddressState());
 		
-		//Address info
-		dto.setCity("Some City");
-		dto.setCountry("Some Country");
-		dto.setState("Some State");
-		dto.setStreet("Some Street");
-		dto.setZip(55555);
+		Assert.assertNotNull(someDto.getName());
+		Assert.assertNotNull(someDto.getDateFounded());
+		Assert.assertNotNull(someDto.getIndustryName());
 		
-		//User info
-		dto.setUsername("username");
-		dto.setPassword("password");
-		return dto;
+		Assert.assertEquals(someDto.getCity(), address.getCity());
+		Assert.assertEquals(someDto.getZip(), address.getZip());
+		Assert.assertEquals(someDto.getAddressState(), address.getState());
+		Assert.assertEquals(someDto.getIndustryName(), business.getIndustry());
+		Assert.assertEquals(someDto.getName(), business.getName());
+		Assert.assertEquals(someDto.getDateFounded(), business.getFounded());
+	}
+
+	@Test
+	public void testMappingFromMultipleObjectsToDto() {
+		// add object to the map
+		Map<String, Object> objectMap = new HashMap<String, Object>();
+		Address address = new Address();
+		address.setCity("Sacramento");
+		address.setZip(12345);
+		address.setState("CA");
+		
+		Business business = new Business();
+		business.setName("Business Name");
+		business.setFounded(new Date());
+		business.setIndustry("Unit Testing");
+		
+		objectMap.put("business", business);
+		objectMap.put("address", address);
+
+		// get a new dto
+		BusinessAddressDTO someDto = new BusinessAddressDTO();
+				
+		// perform mapping and validate
+		Mapper.toDto(someDto, objectMap);
+		Assert.assertNotNull(someDto.getCity());
+		Assert.assertNotNull(someDto.getZip());
+		Assert.assertNotNull(someDto.getAddressState());
+		
+		Assert.assertNotNull(someDto.getName());
+		Assert.assertNotNull(someDto.getDateFounded());
+		Assert.assertNotNull(someDto.getIndustryName());
+		
+		Assert.assertEquals(someDto.getCity(), address.getCity());
+		Assert.assertEquals(someDto.getZip(), address.getZip());
+		Assert.assertEquals(someDto.getAddressState(), address.getState());
+		Assert.assertEquals(someDto.getIndustryName(), business.getIndustry());
+		Assert.assertEquals(someDto.getName(), business.getName());
+		Assert.assertEquals(someDto.getDateFounded(), business.getFounded());
+	}
+
+	@Test
+	public void testClassLevelMappingFromDtoToMappedSetter() {
+		// TODO
+		Assert.fail();
+	}
+
+	@Test
+	public void testFieldLevelMappingFromDtoToMappedSetter() {
+		// TODO
+		Assert.fail();
+	}
+
+	@Test
+	public void testClassLevelMappingToDtoFromMappedSetter() {
+		// TODO
+		Assert.fail();
+	}
+
+	@Test
+	public void testFieldLevelMappingToDtoFromMappedSetter() {
+		// TODO
+		Assert.fail();
+	}
+
+	@Test
+	public void testClassLevelMappingFromDtoDifferentSetterName() {
+		// TODO
+		Assert.fail();
+	}
+
+	@Test
+	public void testFieldLevelMappingFromDtoToDifferentMappedSetterName() {
+		// TODO
+		Assert.fail();
+	}
+
+	@Test
+	public void testClassLevelMappingToDtoFromDifferentMappedSetterName() {
+		// TODO
+		Assert.fail();
+	}
+
+	@Test
+	public void testFieldLevelMappingToDtoFromDifferentMappedSetterName() {
+		// TODO
+		Assert.fail();
+	}
+
+	@Test
+	public void testMappingToMultipleObjectsFromMappedSetters() {
+		// TODO
+		Assert.fail();
+	}
+
+	@Test
+	public void testMappingFromMultipleObjectsToMappedSetters() {
+		// TODO
+		Assert.fail();
+	}
+
+	@Test
+	public void testMappingToMultipleObjectsWithDifferentSetterNames() {
+		// TODO
+		Assert.fail();
+	}
+
+	@Test
+	public void testMappingFromMultipleObjectsWithDifferentSetterNames() {
+		// TODO
+		Assert.fail();
+	}
+
+	@Test
+	public void testIgnoreField() {
+		User user = new User();
+		Map<String, Object> objectMap = new HashMap<String, Object>();
+		objectMap.put("user", user);
+		
+		UserDTO someDto = testHelper.getTestUserDTO();
+		Mapper.fromDto(someDto, objectMap);
+
+		Assert.assertNotNull(someDto.getUsername());
+		Assert.assertNotNull(someDto.getPassword());
+		Assert.assertNotNull(someDto.getFirstName());
+		Assert.assertNotNull(someDto.getLastName());
+		Assert.assertNotNull(someDto.getBirthDate());
+
+		Assert.assertNotSame(someDto.getUsername(), user.getUsername());
+		Assert.assertNotSame(someDto.getPassword(), user.getPassword());
+
+		Assert.assertNull(user.getUsername());
+		Assert.assertNull(user.getPassword());
+		Assert.assertEquals(someDto.getFirstName(), user.getFirstName());
+		Assert.assertEquals(someDto.getLastName(), user.getLastName());
+		Assert.assertEquals(someDto.getBirthDate(), user.getBirthDate());
+	}
+
+	@Test
+	public void testMappingFromEmbeddedDto() {
+		// add object to the map
+		Map<String, Object> objectMap = new HashMap<String, Object>();
+		Address address = new Address();
+		Business business = new Business();
+		objectMap.put("business", business);
+		objectMap.put("address", address);
+
+		// get a test dto
+		BusinessAddressEmbeddedDTO someDto = testHelper.getBusinessAddressEmbeddedDTO();
+
+		// perform mapping and validate
+		Mapper.fromDto(someDto, objectMap);
+		Assert.assertNotNull(someDto.getAddressDTO().getCity());
+		Assert.assertNotNull(someDto.getAddressDTO().getZip());
+		Assert.assertNotNull(someDto.getAddressDTO().getAddressState());
+		
+		Assert.assertNotNull(someDto.getBusinessDTO().getName());
+		Assert.assertNotNull(someDto.getBusinessDTO().getDateFounded());
+		Assert.assertNotNull(someDto.getBusinessDTO().getIndustryName());
+		
+		Assert.assertEquals(someDto.getAddressDTO().getCity(), address.getCity());
+		Assert.assertEquals(someDto.getAddressDTO().getZip(), address.getZip());
+		Assert.assertEquals(someDto.getAddressDTO().getAddressState(), address.getState());
+		Assert.assertEquals(someDto.getBusinessDTO().getIndustryName(), business.getIndustry());
+		Assert.assertEquals(someDto.getBusinessDTO().getName(), business.getName());
+		Assert.assertEquals(someDto.getBusinessDTO().getDateFounded(), business.getFounded());
+	}
+
+	@Test
+	public void testMappingToEmbeddedDto() {
+		// add object to the map
+		Map<String, Object> objectMap = new HashMap<String, Object>();
+		Address address = new Address();
+		address.setCity("Sacramento");
+		address.setZip(12345);
+		address.setState("CA");
+		
+		Business business = new Business();
+		business.setName("Business Name");
+		business.setFounded(new Date());
+		business.setIndustry("Unit Testing");
+		
+		objectMap.put("business", business);
+		objectMap.put("address", address);
+
+		// get a new dto
+		BusinessAddressEmbeddedDTO someDto = new BusinessAddressEmbeddedDTO();
+		someDto.setAddressDTO(new AddressDTO());
+		someDto.setBusinessDTO(new BusinessDTO());
+				
+		// perform mapping and validate
+		Mapper.toDto(someDto, objectMap);
+		Assert.assertNotNull(someDto.getAddressDTO().getCity());
+		Assert.assertNotNull(someDto.getAddressDTO().getZip());
+		Assert.assertNotNull(someDto.getAddressDTO().getAddressState());
+		
+		Assert.assertNotNull(someDto.getBusinessDTO().getName());
+		Assert.assertNotNull(someDto.getBusinessDTO().getDateFounded());
+		Assert.assertNotNull(someDto.getBusinessDTO().getIndustryName());
+		
+		Assert.assertEquals(someDto.getAddressDTO().getCity(), address.getCity());
+		Assert.assertEquals(someDto.getAddressDTO().getZip(), address.getZip());
+		Assert.assertEquals(someDto.getAddressDTO().getAddressState(), address.getState());
+		Assert.assertEquals(someDto.getBusinessDTO().getIndustryName(), business.getIndustry());
+		Assert.assertEquals(someDto.getBusinessDTO().getName(), business.getName());
+		Assert.assertEquals(someDto.getBusinessDTO().getDateFounded(), business.getFounded());
+	}
+
+	/* Failure Cases */
+
+	@Test(expected=MapperException.class)
+	public void testMapToFieldConflictingTypes() {
+		// TODO
+		Assert.fail();
+	}
+
+	@Test(expected=MapperException.class)
+	public void testMapToSetterConflictingTypes() {
+		// TODO
+		Assert.fail();
+	}
+
+	@Test(expected=MapperException.class)
+	public void testMapToFieldNoSuchField() {
+		// TODO
+		Assert.fail();
+	}
+
+	@Test(expected=MapperException.class)
+	public void testMapToSetterNoSuchSetter() {
+		// TODO
+		Assert.fail();
 	}
 }

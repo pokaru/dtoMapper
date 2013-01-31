@@ -4,6 +4,7 @@ import java.util.Date;
 
 import com.okaru.dtomapper.annotation.Ignore;
 import com.okaru.dtomapper.annotation.MappedField;
+import com.okaru.dtomapper.annotation.MappedField.MapsTo;
 import com.okaru.dtomapper.annotation.MappedObject;
 
 @MappedObject(key = "address")
@@ -28,14 +29,13 @@ public class RegistrationDTO {
 	/*
 	 * Business fields
 	 */
-	@MappedField(mappedObjectKey="business", field="name")
+	@MappedField(mappedObjectKey="business", field="name", mapsTo=MapsTo.SETTER)
 	private String businessName;
 	
 	/*
 	 * Ignored fields
 	 */
 	@Ignore
-	@MappedField(mappedObjectKey="business", field="founded")
 	private Date registrationTime;
 	
 	public Date getRegistrationTime() {

@@ -5,9 +5,16 @@ import java.util.Date;
 public class Business {
 	private String name;
 	private Date founded;
+	private String industry;
 	private Address address;
 	private User owner;
 	
+	public String getIndustry() {
+		return industry;
+	}
+	public void setIndustry(String industry) {
+		this.industry = industry;
+	}
 	public String getName() {
 		return name;
 	}

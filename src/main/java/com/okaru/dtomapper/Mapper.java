@@ -1,11 +1,10 @@
 package com.okaru.dtomapper;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Map;
 
-import com.okaru.dtomapper.annotation.Ignore;
-import com.okaru.dtomapper.annotation.MappedField;
-import com.okaru.dtomapper.annotation.MappedObject;
 import com.okaru.dtomapper.exception.MapperException;
 
 /**
@@ -17,152 +16,180 @@ import com.okaru.dtomapper.exception.MapperException;
  */
 public class Mapper{
 	/**
-	 * Maps field values from <code>someDto</code> to fields of models in the
-	 * <code>modelMap</code>.
+	 * Maps field values from <code>someDto</code> to fields of objects in the
+	 * <code>objectMap</code>.
 	 * 
 	 * @param someDto
-	 * @param modelMap
+	 * @param objectMap
 	 */
-	public static void fromDto(Object someDto, Map<String, Object> modelMap){
-		beginMapping(someDto, modelMap, true);
+	public static void fromDto(Object someDto, Map<String, Object> objectMap) throws MapperException{
+		beginMapping(someDto, objectMap, true);
 	}
 
 	/**
-	 * Maps field values from fields of the models in <code>modelMap</code> to 
+	 * Maps field values from fields of the objects in <code>objectMap</code> to 
 	 * fields of <code>someDto</code>.
 	 * 
 	 * @param someDto
-	 * @param modelMap
+	 * @param objectMap
 	 */
-	public static void toDto(Object someDto, Map<String, Object> modelMap){
-		beginMapping(someDto, modelMap, false);
+	public static void toDto(Object someDto, Map<String, Object> objectMap) throws MapperException{
+		beginMapping(someDto, objectMap, false);
 	}
 	
-	private static void beginMapping(Object someDto, Map<String, Object> modelMap, boolean toModel){
-		String clmd = getClassLevelMappingDestination(someDto);
+	private static void beginMapping(Object someDto, Map<String, Object> objectMap, boolean toObject) throws MapperException{
+		if(someDto == null){
+			throw new MapperException("The DTO cannot be null.");
+		}
+		
+		if(objectMap == null){
+			throw new MapperException("The object map cannot be null.");
+		}
+		
+		String clmd = MapperUtils.getClassLevelMappingDestination(someDto);
 		
 		Field[] fields = someDto.getClass().getDeclaredFields();
 		for(Field field : fields){
-			if(!isIgnored(field)){
-				String flmd = getFieldLevelMappingDestination(field);
-	
-				String destination = null;
-				if(clmd == null && flmd == null){
-					throw new MapperException("No model to map " +
-							"field, " + field.getName() + ", to.");
+			if(!MapperUtils.isIgnored(field)){
+				if(MapperUtils.isEmbeddedDto(field)){
+					Object embeddedDto;
+					try {
+						field.setAccessible(true);
+						embeddedDto = field.get(someDto);
+						if(embeddedDto != null){
+							beginMapping(embeddedDto, objectMap, toObject);
+						}else{
+							if(!toObject){
+								throw new MapperException("Embedded DTO \"" + 
+										field.getName() + "\" of " + 
+										someDto.getClass().getName() + " is null. " +
+											"Embedded DTOs cannot be null when " +
+											"being mapped to.");
+							}
+						}
+					} catch (IllegalArgumentException e) {
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					}
 				}else{
-					destination = flmd == null? clmd:flmd;
+					String flmd = MapperUtils.getFieldLevelMappingDestination(field);
+		
+					String destination = null;
+					if(clmd == null && flmd == null){
+						throw new MapperException("No object to map " +
+								"field, " + field.getName() + ", to.  Check to" +
+							    " make sure you reference an object in either " +
+							    "@MappedObject on the DTO class or @MappedField" +
+							    " on the \""+field.getName()+"\" within " + 
+							    someDto.getClass().getName());
+					}
+					destination = (flmd == null)? clmd:flmd;
+					transfer(field, someDto, destination, objectMap, toObject);
 				}
-				transfer(field, someDto, destination, modelMap, toModel);
 			}
 		}
-	}
-
-	/**
-	 * Returns the class level mapping destination if there is one.
-	 * 
-	 * @param someDto
-	 * @return
-	 */
-	private static String getClassLevelMappingDestination(Object someDto) {
-		MappedObject dest = someDto.getClass().getAnnotation(MappedObject.class);
-		return (dest != null)? dest.key():null;
-	}
-
-	/**
-	 * Returns the field-level mapping destination if there is one.
-	 * 
-	 * @param field
-	 * @return
-	 */
-	private static String getFieldLevelMappingDestination(Field field) {
-		MappedField mapping = field.getAnnotation(MappedField.class);
-		if((mapping != null) && (!mapping.mappedObjectKey().isEmpty())){
-			return mapping.mappedObjectKey();
-		}
-		return null;
-	}
-
-	/**
-	 * Returns the name of the destination model's field that will be mapped
-	 * to.
-	 * 
-	 * @param field
-	 * @return
-	 */
-	private static String getDestinationFieldName(Field field) {
-		MappedField mapping = field.getAnnotation(MappedField.class);
-		if((mapping != null) && (!mapping.field().isEmpty())){
-			return mapping.field();
-		}
-		return field.getName();
 	}
 
 	/**
 	 * Maps <code>field</code> of <code>someDto</code> to the object mapped in
-	 * <code>modelMap</code> with the key <code>destination</code>'s classname.
+	 * <code>objectMap</code> with the key <code>destination</code>'s classname.
 	 * 
 	 * @param field
 	 * @param someDto
 	 * @param destination
-	 * @param modelMap
+	 * @param objectMap
 	 */
 	private static void transfer(Field field, Object someDto,
-			String destination, Map<String, Object> modelMap, boolean toModel) {
-		String fieldName = getDestinationFieldName(field);
-			
-		Object model = modelMap.get(destination);
-		if(model != null){
-			Field modelField = null;
-			try {
-				modelField = model.getClass().getDeclaredField(fieldName);
-				if(modelField.getType().equals(field.getType())){
-					boolean modelFieldAccessible = modelField.isAccessible();
-					boolean dtoFieldAccessible = field.isAccessible();
-					
-					modelField.setAccessible(true);
-					field.setAccessible(true);
-					
-					if(toModel){
-						modelField.set(model, field.get(someDto));
-					}else{
-						field.set(someDto, modelField.get(model));
-					}
-					
-					modelField.setAccessible(modelFieldAccessible);
-					field.setAccessible(dtoFieldAccessible);
-				}else{
-					throw new MapperException("Cannot map " + 
-							field.getName() + " of " + 
-							someDto.getClass().getName() + " to " + 
-							modelField.getName() + " of " + 
-							model.getClass().getName() + ".  The types" +
-							" need to be the same.");
-				}
-			} catch (NoSuchFieldException e) {
-				throw new MapperException("Field, " + fieldName + ", does " +
-						"not exist on model " + model.getClass().getName(), e);
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
+			String destination, Map<String, Object> objectMap, boolean toObject) throws MapperException{
+		String fieldName = MapperUtils.getDestinationFieldName(field);
+		Object object = objectMap.get(destination);
+		if(object != null){
+			if(MapperUtils.mapsToField(field)){
+				handleFieldMapping(field, someDto, fieldName, object, toObject);
+			}else{
+				handleSetterMapping(field, someDto, fieldName, object, toObject);
 			}
 		}else{
-			throw new MapperException("No model with the key \"" 
-					+ destination + "\" found in modelMap. Referenced by " + 
+			throw new MapperException("No object with the key \"" 
+					+ destination + "\" found in objectMap. Referenced by " + 
 					someDto.getClass().getName() + "." + field.getName());
 		}
 	}
-
-	/**
-	 * Returns whether the specified field is transient or not.
-	 * 
-	 * @param f
-	 * @return
-	 */
-	private static boolean isIgnored(Field f){
-		return (f.getAnnotation(Ignore.class) != null);
+	
+	private static void handleFieldMapping(Field field, Object someDto,
+			String fieldName, Object object, boolean toObject) throws MapperException{
+		Field objectField = null;
+		try {
+			objectField = object.getClass().getDeclaredField(fieldName);
+			if(objectField.getType().equals(field.getType())){
+				objectField.setAccessible(true);
+				field.setAccessible(true);
+				
+				if(toObject){
+					objectField.set(object, field.get(someDto));
+				}else{
+					field.set(someDto, objectField.get(object));
+				}
+			}else{
+				throw new MapperException("Cannot map " + 
+						field.getName() + " of " + 
+						someDto.getClass().getName() + " to " + 
+						objectField.getName() + " of " + 
+						object.getClass().getName() + ".  The types" +
+						" need to be the same.");
+			}
+		} catch (NoSuchFieldException e) {
+			throw new MapperException("Field, " + fieldName + ", does " +
+					"not exist on object " + object.getClass().getName(), e);
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
 	}
+	
+	private static void handleSetterMapping(Field field, Object someDto,
+			String fieldName, Object object, boolean toObject) throws MapperException{
+		try {
+			if(toObject){
+				String setterMethodName = MapperUtils.getSetterMethodName(fieldName);
+				field.setAccessible(true);
+				Method method;
+				try {
+					method = object.getClass().getDeclaredMethod(setterMethodName, field.get(someDto).getClass());
+					method.setAccessible(true);
+					Object someObject = field.get(someDto);
+					method.invoke(object, someObject);
+				} catch (NoSuchMethodException e) {
+					throw new MapperException("No such method \""+setterMethodName+
+							"("+field.get(someDto).getClass().getName()+")\" " +
+									"in object " + object.getClass().getName(), e);
+				} catch (IllegalArgumentException e) {
+					throw new MapperException(e);
+				}
+			}else{
+				String getterMethodName = MapperUtils.getGetterMethodName(fieldName);
+				Method method;
+				try {
+					method = object.getClass().getDeclaredMethod(getterMethodName);
+					method.setAccessible(true);
+					field.setAccessible(true);
+					field.set(someDto, method.invoke(object));
+				} catch (NoSuchMethodException e) {
+					throw new MapperException("No such method \""+getterMethodName+"()\" " +
+									"in object " + object.getClass().getName(), e);
+				}
+			}
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
+	}
+
 }
