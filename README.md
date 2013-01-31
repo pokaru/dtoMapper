@@ -34,12 +34,17 @@ Annotations
 > In the case where field names in the mapped object aren't the same as the field names in the DTO, you can annotate a DTO field with this annotation.  Using the **field** attribute, you can specify the field name in the mapped object that the annotated DTO field will map to.
 
 > #### Attribute: mappedOjbectKey="someKey"
-> In addition to **field**, the @MappedField annotation has another attribute, **mappedObjectKey**.  Setting this attribute is equivalent to setting the @MappedObject annotation, but at the field-level.  Using this attribute, you can map a DTO field to an object other than the one referenced by the @MappedObject class-level annotation.
+> Setting this attribute is equivalent to setting the @MappedObject annotation, but at the field-level.  Using this attribute, you can map a DTO field to an object other than the one referenced by the @MappedObject class-level annotation.
 > If each field in the in the DTO is annotated with this annotation and **mappedObjectKey** is set, the @MappedObject class-level annotation isn't necessary or required.
 
+> #### Attribute: mapsTo= (MapsTo.FIELD | MapsTo.SETTER)
+> You can tell the mapper to map a DTO field to a setter method of the mapped object by setting this attribute to MapsTo.SETTER.  By default this attribute is set to MapsTo.FIELD, which maps DTO fields to the mapped object fields.  The setter method name will be constructed by the mapper from the field name (ie someField would turn into setSomeField).
 
 **@Ignore** (field-level)
 > If you ever need to declare a field in a DTO that shouldn't be mapped, annotating that field with this annotation will have the mapper ignore that field during the mapping process.
+
+**@Embedded** (field-level)
+> dtoMapper supports embedded dto mapping.  DTO fields decorated with this annotation will inspected by the Mapper and their field values will be transfered to objects found in the object map.
 
 If none of this makes sense, take a look at the examples below.
 
@@ -86,6 +91,16 @@ public class MyDTO{
     private String someField2;
 }
 ```
+**Mapping to a Setter Method**
+```java
+@MappedObject(key="someKey")
+public class MyDTO{
+    private String someField;
+    
+    @MappedField(mapsTo=MapsTo.SETTER)
+    private String someField2;
+}
+```
 **All Field-Level Mappings**
 ```java
 public class MyDTO{
@@ -94,6 +109,15 @@ public class MyDTO{
     
     @MappedField(mappedObjectKey="someOtherKey", field="anotherName")
     private String someField2;
+}
+```
+**Embedded DTOs**
+```java
+public class MyDTO{
+    @Embedded
+    private SomeGroupedDataDTO someGroupedData;
+    @Embedded
+    private SomeMoreGroupedDataDTO someMoreGroupedData;
 }
 ```
 **Ignored Field**
