@@ -15,7 +15,10 @@ Map<String, Object> objectMap = new HashMap<String, Object>();
 objectMap.put("someKey", object1);
 objectMap.put("someOtherKey", object2);
 
+//move data from the dto to objects in the map
 Mapper.fromDto(dto, objectMap);
+
+//move data from objects in the map to the dto
 Mapper.toDto(dto, objectMap);
 ```
 
@@ -28,7 +31,7 @@ Annotations
 
 **@MappedField** (field-level)
 > #### Attribute: field="someFieldName"
-> In the case where fields names in the mapped object aren't the same as the field names in the DTO, you can annotate a DTO field with this annotation.  Using the **field** attribute, you can specify the field name in the mapped object that the annotated DTO field will map to.
+> In the case where field names in the mapped object aren't the same as the field names in the DTO, you can annotate a DTO field with this annotation.  Using the **field** attribute, you can specify the field name in the mapped object that the annotated DTO field will map to.
 
 > #### Attribute: mappedOjbectKey="someKey"
 > In addition to **field**, the @MappedField annotation has another attribute, **mappedObjectKey**.  Setting this attribute is equivalent to setting the @MappedObject annotation, but at the field-level.  Using this attribute, you can map a DTO field to an object other than the one referenced by the @MappedObject class-level annotation.
@@ -37,6 +40,8 @@ Annotations
 
 **@Ignore** (field-level)
 > If you ever need to declare a field in a DTO that shouldn't be mapped, annotating that field with this annotation will have the mapper ignore that field during the mapping process.
+
+If none of this makes sense, take a look at the examples below.
 
 Object Map
 ----------
