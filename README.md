@@ -4,7 +4,7 @@ dtoMapper
 
 I'm sure there may be othere tools out there, but this is my quick stab at a simple framework to automate the process of mapping dto objects to other objects **_(and vice-versa)_**.
 
-With dtoMapper, you can transer DTO field values **to and from multiple** objects without calling a single getter or setter.
+With dtoMapper, you can transer DTO field values **_to and from multiple_** objects without calling a single getter or setter.
 
 Usage
 -----
