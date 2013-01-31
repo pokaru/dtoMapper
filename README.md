@@ -2,9 +2,9 @@ dtoMapper
 =========
 [![Build Status](https://travis-ci.org/pokaru/dtoMapper.png)](https://travis-ci.org/pokaru/dtoMapper)
 
-I'm sure there may be othere tools out there, but this is my quick stab at a simple framework to automate the process of mapping dto objects to other objects **_(and vice-versa)_**.
+I'm sure there may be other tools out there, but this is my quick stab at a simple framework to automate the process of mapping dto objects to other objects **_(and vice-versa)_**.
 
-With dtoMapper, you can transer a single DTO's field values **_to and from multiple_** objects, with one method call, without calling a single getter or setter.
+With dtoMapper, you can transer a single DTO's field values **_to and from multiple_** objects, without calling a single getter or setter.
 
 Usage
 -----
