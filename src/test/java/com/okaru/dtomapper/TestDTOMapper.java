@@ -12,9 +12,11 @@ import com.okaru.dtomapper.dto.AddressDTO;
 import com.okaru.dtomapper.dto.BusinessAddressDTO;
 import com.okaru.dtomapper.dto.BusinessAddressEmbeddedDTO;
 import com.okaru.dtomapper.dto.BusinessDTO;
+import com.okaru.dtomapper.dto.CustomerDTO;
 import com.okaru.dtomapper.dto.UserDTO;
 import com.okaru.dtomapper.model.Address;
 import com.okaru.dtomapper.model.Business;
+import com.okaru.dtomapper.model.Customer;
 import com.okaru.dtomapper.model.User;
 
 /**
@@ -391,10 +393,28 @@ public class TestDTOMapper {
 		Assert.assertEquals(someDto.getBusinessDTO().getDateFounded(), business.getFounded());
 	}
 	
-	//@Test
+	@Test
 	public void testMappingToClassWithParent(){
-		// TODO
-		Assert.fail();
+		Customer customer = new Customer();
+		Map<String, Object> objectMap = new HashMap<String, Object>();
+		objectMap.put("customer", customer);
+		
+		CustomerDTO dto = testHelper.getTestCustomerDTO();
+		Mapper.fromDto(dto, objectMap);
+
+		Assert.assertNotNull(dto.getFirstName());
+		Assert.assertNotNull(dto.getLastName());
+		Assert.assertNotNull(dto.getUsername());
+		Assert.assertNotNull(dto.getNickname());
+		Assert.assertNotNull(dto.getPassword());
+		Assert.assertNotNull(dto.getBirthDate());
+
+		Assert.assertEquals(dto.getFirstName(), customer.getFirstName());
+		Assert.assertEquals(dto.getLastName(), customer.getLastName());
+		Assert.assertEquals(dto.getUsername(), customer.getUsername());
+		Assert.assertEquals(dto.getNickname(), customer.getNickname());
+		Assert.assertEquals(dto.getPassword(), customer.getPassword());
+		Assert.assertEquals(dto.getBirthDate(), customer.getBirthDate());
 	}
 
 	/* Failure Cases */

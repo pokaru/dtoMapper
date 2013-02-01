@@ -6,6 +6,7 @@ import com.okaru.dtomapper.dto.AddressDTO;
 import com.okaru.dtomapper.dto.BusinessAddressDTO;
 import com.okaru.dtomapper.dto.BusinessAddressEmbeddedDTO;
 import com.okaru.dtomapper.dto.BusinessDTO;
+import com.okaru.dtomapper.dto.CustomerDTO;
 import com.okaru.dtomapper.dto.UserDTO;
 
 public class TestDTOMapperHelper {
@@ -53,6 +54,18 @@ public class TestDTOMapperHelper {
 		dto.setBirthDate(new Date());
 		dto.setLastName("lastname");
 		dto.setFirstName("firstName");
+		return dto;
+	}
+	
+	public CustomerDTO getTestCustomerDTO(){
+		CustomerDTO dto = new CustomerDTO();
+		dto.setBirthDate(new Date());
+		dto.setFirstName("first");
+		dto.setLastName("last");
+		dto.setNickname("nickname");
+		dto.setPassword("password");
+		dto.setUsername("username");
+		
 		return dto;
 	}
 }
