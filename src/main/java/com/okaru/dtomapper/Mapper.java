@@ -122,30 +122,25 @@ public class Mapper{
 		Field objectField = null;
 		try {
 			objectField = MapperUtils.getField(object.getClass(), fieldName);
-			if(objectField.getType().equals(field.getType())){
 				objectField.setAccessible(true);
 				field.setAccessible(true);
 				
 				if(toObject){
-					objectField.set(object, field.get(someDto));
+					objectField.set(object, MapperUtils.convertToObjectType(field, someDto));
 				}else{
-					field.set(someDto, objectField.get(object));
+					field.set(someDto, MapperUtils.convertFromObjectType(field, objectField, object));
 				}
-			}else{
-				throw new MapperException("Cannot map " + 
-						field.getName() + " of " + 
-						someDto.getClass().getName() + " to " + 
-						objectField.getName() + " of " + 
-						object.getClass().getName() + ".  The types" +
-						" need to be the same.");
-			}
 		} catch (NoSuchFieldException e) {
 			throw new MapperException("Field, " + fieldName + ", does " +
 					"not exist on object " + object.getClass().getName(), e);
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			throw new MapperException("Cannot map " + 
+					field.getName() + " of " + 
+					someDto.getClass().getName() + " to " + 
+					objectField.getName() + " of " + 
+					object.getClass().getName() + " because there is a type mismatch.", e);
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}

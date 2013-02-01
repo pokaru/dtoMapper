@@ -12,10 +12,12 @@ import com.okaru.dtomapper.dto.AddressDTO;
 import com.okaru.dtomapper.dto.BusinessAddressDTO;
 import com.okaru.dtomapper.dto.BusinessAddressEmbeddedDTO;
 import com.okaru.dtomapper.dto.BusinessDTO;
+import com.okaru.dtomapper.dto.ConverterTestDTO;
 import com.okaru.dtomapper.dto.CustomerDTO;
 import com.okaru.dtomapper.dto.UserDTO;
 import com.okaru.dtomapper.model.Address;
 import com.okaru.dtomapper.model.Business;
+import com.okaru.dtomapper.model.ConverterTestModel;
 import com.okaru.dtomapper.model.Customer;
 import com.okaru.dtomapper.model.User;
 
@@ -415,6 +417,25 @@ public class TestDTOMapper {
 		Assert.assertEquals(dto.getNickname(), customer.getNickname());
 		Assert.assertEquals(dto.getPassword(), customer.getPassword());
 		Assert.assertEquals(dto.getBirthDate(), customer.getBirthDate());
+	}
+	
+	@Test
+	public void testTypeConversion(){
+		ConverterTestModel model = new ConverterTestModel();
+		Map<String, Object> objectMap = new HashMap<String, Object>();
+		objectMap.put("converterTestModel", model);
+		
+		ConverterTestDTO dto = new ConverterTestDTO();
+		String someString = "1982";
+		dto.setString1(someString);
+		Mapper.fromDto(dto, objectMap);
+		
+		Assert.assertEquals(Integer.valueOf(someString), model.getInteger1());
+		
+		ConverterTestDTO newDto = new ConverterTestDTO();
+		Mapper.toDto(newDto, objectMap);
+		
+		Assert.assertEquals(someString, newDto.getString1());
 	}
 
 	/* Failure Cases */
