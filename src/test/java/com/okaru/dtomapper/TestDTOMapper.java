@@ -13,7 +13,6 @@ import com.okaru.dtomapper.dto.BusinessAddressDTO;
 import com.okaru.dtomapper.dto.BusinessAddressEmbeddedDTO;
 import com.okaru.dtomapper.dto.BusinessDTO;
 import com.okaru.dtomapper.dto.UserDTO;
-import com.okaru.dtomapper.exception.MapperException;
 import com.okaru.dtomapper.model.Address;
 import com.okaru.dtomapper.model.Business;
 import com.okaru.dtomapper.model.User;
@@ -390,6 +389,12 @@ public class TestDTOMapper {
 		Assert.assertEquals(someDto.getBusinessDTO().getIndustryName(), business.getIndustry());
 		Assert.assertEquals(someDto.getBusinessDTO().getName(), business.getName());
 		Assert.assertEquals(someDto.getBusinessDTO().getDateFounded(), business.getFounded());
+	}
+	
+	//@Test
+	public void testMappingToClassWithParent(){
+		// TODO
+		Assert.fail();
 	}
 
 	/* Failure Cases */

@@ -48,7 +48,7 @@ public class Mapper{
 		
 		String clmd = MapperUtils.getClassLevelMappingDestination(someDto);
 		
-		Field[] fields = someDto.getClass().getDeclaredFields();
+		Field[] fields = MapperUtils.getFields(someDto.getClass());
 		for(Field field : fields){
 			if(!MapperUtils.isIgnored(field)){
 				if(MapperUtils.isEmbeddedDto(field)){
@@ -121,7 +121,7 @@ public class Mapper{
 			String fieldName, Object object, boolean toObject) throws MapperException{
 		Field objectField = null;
 		try {
-			objectField = object.getClass().getDeclaredField(fieldName);
+			objectField = MapperUtils.getField(object.getClass(), fieldName);
 			if(objectField.getType().equals(field.getType())){
 				objectField.setAccessible(true);
 				field.setAccessible(true);
@@ -159,7 +159,7 @@ public class Mapper{
 				field.setAccessible(true);
 				Method method;
 				try {
-					method = object.getClass().getDeclaredMethod(setterMethodName, field.get(someDto).getClass());
+					method = MapperUtils.getMethod(object.getClass(), setterMethodName, field.get(someDto).getClass());
 					method.setAccessible(true);
 					Object someObject = field.get(someDto);
 					method.invoke(object, someObject);
@@ -174,7 +174,7 @@ public class Mapper{
 				String getterMethodName = MapperUtils.getGetterMethodName(fieldName);
 				Method method;
 				try {
-					method = object.getClass().getDeclaredMethod(getterMethodName);
+					method = MapperUtils.getMethod(object.getClass(), getterMethodName);
 					method.setAccessible(true);
 					field.setAccessible(true);
 					field.set(someDto, method.invoke(object));

@@ -1,6 +1,10 @@
 package com.okaru.dtomapper;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import com.okaru.dtomapper.annotation.Embedded;
 import com.okaru.dtomapper.annotation.Ignore;
@@ -16,6 +20,77 @@ import com.okaru.dtomapper.annotation.MappedField.MapsTo;
  */
 public class MapperUtils {
 
+	/**
+	 * Returns the specified method for the specified class.
+	 * 
+	 * @param someClass
+	 * @param methodName
+	 * @return
+	 * @throws NoSuchMethodException
+	 * @throws SecurityException
+	 */
+	public static Method getMethod(Class<?> someClass, String methodName, Class<?> ... parameterTypes) throws NoSuchMethodException, SecurityException{
+		if(someClass != null){
+			try {
+				return someClass.getDeclaredMethod(methodName, parameterTypes);
+            } catch (NoSuchMethodException e) {
+	            return getMethod(someClass.getSuperclass(), methodName);
+            }
+		}else{
+			throw new NoSuchMethodException();
+		}
+	} 
+	
+	/**
+	 * Returns the specified field for the specified class.
+	 * 
+	 * @param someClass
+	 * @param fieldName
+	 * @return
+	 * @throws NoSuchFieldException
+	 * @throws SecurityException
+	 */
+	public static Field getField(Class<?> someClass, String fieldName) 
+			throws NoSuchFieldException, SecurityException{
+		if(someClass != null){
+			try {
+				return someClass.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+	            return getField(someClass.getSuperclass(), fieldName);
+            }
+		}else{
+			throw new NoSuchFieldException();
+		}
+	}
+
+	/**
+	 * Returns an array of all the fields contained in this class as well as
+	 * fields in parent classes.
+	 * 
+	 * @param someClass
+	 * @return
+	 */
+	public static Field[] getFields(Class<?> someClass){
+		List<Field> fieldList = new ArrayList<Field>();
+		findFields(fieldList, someClass);
+		return fieldList.toArray(new Field[fieldList.size()]);
+	}
+	
+	/**
+	 * Recursive utility method for finding fields in parent classes.
+	 * 
+	 * @param fieldList
+	 * @param someClass
+	 */
+	private static void findFields(List<Field> fieldList, Class<?> someClass){
+		if(someClass != null){
+			Collections.addAll(fieldList, someClass.getDeclaredFields());
+		}
+		if(someClass.getSuperclass() != null){
+			findFields(fieldList, someClass.getSuperclass());
+		}
+	}
+	
 	/**
 	 * Returns the class level mapping destination if there is one.
 	 * 
