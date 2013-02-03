@@ -8,6 +8,7 @@ public class User {
 	private String firstName;
 	private String lastName;
 	private Date birthDate;
+	private String fullName;
 	
 	public String getUsername() {
 		return username;
@@ -38,5 +39,11 @@ public class User {
 	}
 	public void setBirthDate(Date birthDate) {
 		this.birthDate = birthDate;
+	}
+	public String getFullName() {
+		return fullName;
+	}
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
 	}
 }

@@ -4,7 +4,11 @@ import java.util.Date;
 
 import com.okaru.dtomapper.annotation.Ignore;
 import com.okaru.dtomapper.annotation.MappedObject;
+import com.okaru.dtomapper.annotation.Rules;
+import com.okaru.dtomapper.rule.CreateUsernameRule;
+import com.okaru.dtomapper.rule.NameRule;
 
+@Rules({NameRule.class,CreateUsernameRule.class})
 @MappedObject(key="user")
 public class UserDTO {
 	@Ignore

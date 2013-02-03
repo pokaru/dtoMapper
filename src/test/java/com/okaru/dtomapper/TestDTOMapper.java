@@ -1,8 +1,6 @@
 package com.okaru.dtomapper;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import junit.framework.Assert;
 
@@ -35,7 +33,7 @@ public class TestDTOMapper {
 	@Test
 	public void testClassLevelMappingFromDtoToMappedField() {
 		// add object to the map
-		Map<String, Object> objectMap = new HashMap<String, Object>();
+		ObjectMap objectMap = new ObjectMap();
 		Address address = new Address();
 		objectMap.put("address", address);
 
@@ -50,7 +48,7 @@ public class TestDTOMapper {
 	@Test
 	public void testFieldLevelMappingFromDtoToMappedField() {
 		// add object to the map
-		Map<String, Object> objectMap = new HashMap<String, Object>();
+		ObjectMap objectMap = new ObjectMap();
 		Business business = new Business();
 		objectMap.put("business", business);
 
@@ -65,7 +63,7 @@ public class TestDTOMapper {
 	@Test
 	public void testClassLevelMappingToDtoFromMappedField() {
 		// add object to the map
-		Map<String, Object> objectMap = new HashMap<String, Object>();
+		ObjectMap objectMap = new ObjectMap();
 		Address address = new Address();
 		address.setCity("San Jose");
 		objectMap.put("address", address);
@@ -82,7 +80,7 @@ public class TestDTOMapper {
 	@Test
 	public void testFieldLevelMappingToDtoFromMappedField() {
 		// add object to the map
-		Map<String, Object> objectMap = new HashMap<String, Object>();
+		ObjectMap objectMap = new ObjectMap();
 		Business business = new Business();
 		business.setName("Okaru Corp.");
 		objectMap.put("business", business);
@@ -99,7 +97,7 @@ public class TestDTOMapper {
 	@Test
 	public void testClassLevelMappingFromDtoDifferentFieldName() {
 		// add object to the map
-		Map<String, Object> objectMap = new HashMap<String, Object>();
+		ObjectMap objectMap = new ObjectMap();
 		Address address = new Address();
 		objectMap.put("address", address);
 
@@ -114,7 +112,7 @@ public class TestDTOMapper {
 	@Test
 	public void testFieldLevelMappingFromDtoToDifferentMappedFieldName() {
 		// add object to the map
-		Map<String, Object> objectMap = new HashMap<String, Object>();
+		ObjectMap objectMap = new ObjectMap();
 		Business business = new Business();
 		objectMap.put("business", business);
 
@@ -129,7 +127,7 @@ public class TestDTOMapper {
 	@Test
 	public void testClassLevelMappingToDtoFromDifferentMappedFieldName() {
 		// add object to the map
-		Map<String, Object> objectMap = new HashMap<String, Object>();
+		ObjectMap objectMap = new ObjectMap();
 		Address address = new Address();
 		address.setState("Texas");
 		objectMap.put("address", address);
@@ -146,7 +144,7 @@ public class TestDTOMapper {
 	@Test
 	public void testFieldLevelMappingToDtoFromDifferentMappedFieldName() {
 		// add object to the map
-		Map<String, Object> objectMap = new HashMap<String, Object>();
+		ObjectMap objectMap = new ObjectMap();
 		Business business = new Business();
 		business.setFounded(new Date());
 		objectMap.put("business", business);
@@ -163,7 +161,7 @@ public class TestDTOMapper {
 	@Test
 	public void testMappingToMultipleObjectsToMappedFields() {
 		// add object to the map
-		Map<String, Object> objectMap = new HashMap<String, Object>();
+		ObjectMap objectMap = new ObjectMap();
 		Address address = new Address();
 		Business business = new Business();
 		objectMap.put("business", business);
@@ -193,7 +191,7 @@ public class TestDTOMapper {
 	@Test
 	public void testMappingFromMultipleObjectsToDto() {
 		// add object to the map
-		Map<String, Object> objectMap = new HashMap<String, Object>();
+		ObjectMap objectMap = new ObjectMap();
 		Address address = new Address();
 		address.setCity("Sacramento");
 		address.setZip(12345);
@@ -303,7 +301,7 @@ public class TestDTOMapper {
 	@Test
 	public void testIgnoreField() {
 		User user = new User();
-		Map<String, Object> objectMap = new HashMap<String, Object>();
+		ObjectMap objectMap = new ObjectMap();
 		objectMap.put("user", user);
 		
 		UserDTO someDto = testHelper.getTestUserDTO();
@@ -328,7 +326,7 @@ public class TestDTOMapper {
 	@Test
 	public void testMappingFromEmbeddedDto() {
 		// add object to the map
-		Map<String, Object> objectMap = new HashMap<String, Object>();
+		ObjectMap objectMap = new ObjectMap();
 		Address address = new Address();
 		Business business = new Business();
 		objectMap.put("business", business);
@@ -358,7 +356,7 @@ public class TestDTOMapper {
 	@Test
 	public void testMappingToEmbeddedDto() {
 		// add object to the map
-		Map<String, Object> objectMap = new HashMap<String, Object>();
+		ObjectMap objectMap = new ObjectMap();
 		Address address = new Address();
 		address.setCity("Sacramento");
 		address.setZip(12345);
@@ -398,7 +396,7 @@ public class TestDTOMapper {
 	@Test
 	public void testMappingToClassWithParent(){
 		Customer customer = new Customer();
-		Map<String, Object> objectMap = new HashMap<String, Object>();
+		ObjectMap objectMap = new ObjectMap();
 		objectMap.put("customer", customer);
 		
 		CustomerDTO dto = testHelper.getTestCustomerDTO();
@@ -422,7 +420,7 @@ public class TestDTOMapper {
 	@Test
 	public void testTypeConversion(){
 		ConverterTestModel model = new ConverterTestModel();
-		Map<String, Object> objectMap = new HashMap<String, Object>();
+		ObjectMap objectMap = new ObjectMap();
 		objectMap.put("converterTestModel", model);
 		
 		ConverterTestDTO dto = new ConverterTestDTO();
@@ -436,6 +434,19 @@ public class TestDTOMapper {
 		Mapper.toDto(newDto, objectMap);
 		
 		Assert.assertEquals(someString, newDto.getString1());
+	}
+	
+	@Test
+	public void testCustomRules(){
+		User user = new User();
+		ObjectMap objectMap = new ObjectMap();
+		objectMap.put("user", user);
+		
+		UserDTO someDto = testHelper.getTestUserDTO();
+		Mapper.fromDto(someDto, objectMap);
+		
+		System.out.println("fullname: " + user.getFullName());
+		System.out.println("username: " + user.getUsername());
 	}
 
 	/* Failure Cases */

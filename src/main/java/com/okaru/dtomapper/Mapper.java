@@ -5,7 +5,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+import com.okaru.dtomapper.annotation.Rules;
 import com.okaru.dtomapper.exception.MapperException;
+import com.okaru.dtomapper.exception.RuleException;
+import com.okaru.dtomapper.rule.Rule;
 
 /**
  * Maps values from dto objects to other objects and vice versa.  Mappings are
@@ -22,7 +25,7 @@ public class Mapper{
 	 * @param someDto
 	 * @param objectMap
 	 */
-	public static void fromDto(Object someDto, Map<String, Object> objectMap) throws MapperException{
+	public static void fromDto(Object someDto, ObjectMap objectMap) throws MapperException{
 		beginMapping(someDto, objectMap, true);
 	}
 
@@ -33,11 +36,11 @@ public class Mapper{
 	 * @param someDto
 	 * @param objectMap
 	 */
-	public static void toDto(Object someDto, Map<String, Object> objectMap) throws MapperException{
+	public static void toDto(Object someDto, ObjectMap objectMap) throws MapperException{
 		beginMapping(someDto, objectMap, false);
 	}
 	
-	private static void beginMapping(Object someDto, Map<String, Object> objectMap, boolean toObject) throws MapperException{
+	private static void beginMapping(Object someDto, ObjectMap objectMap, boolean toObject) throws MapperException{
 		if(someDto == null){
 			throw new MapperException("The DTO cannot be null.");
 		}
@@ -59,13 +62,10 @@ public class Mapper{
 						if(embeddedDto != null){
 							beginMapping(embeddedDto, objectMap, toObject);
 						}else{
-							if(!toObject){
-								throw new MapperException("Embedded DTO \"" + 
-										field.getName() + "\" of " + 
-										someDto.getClass().getName() + " is null. " +
-											"Embedded DTOs cannot be null when " +
-											"being mapped to.");
-							}
+							throw new MapperException("Embedded DTO \"" + 
+									field.getName() + "\" of " + 
+									someDto.getClass().getName() + " is null. " +
+										"Embedded DTOs cannot be null.");
 						}
 					} catch (IllegalArgumentException e) {
 						e.printStackTrace();
@@ -89,6 +89,7 @@ public class Mapper{
 				}
 			}
 		}
+		applyRules(someDto, objectMap.getObjectMap());
 	}
 
 	/**
@@ -101,7 +102,7 @@ public class Mapper{
 	 * @param objectMap
 	 */
 	private static void transfer(Field field, Object someDto,
-			String destination, Map<String, Object> objectMap, boolean toObject) throws MapperException{
+			String destination, ObjectMap objectMap, boolean toObject) throws MapperException{
 		String fieldName = MapperUtils.getDestinationFieldName(field);
 		Object object = objectMap.get(destination);
 		if(object != null){
@@ -187,4 +188,33 @@ public class Mapper{
 		}
 	}
 
+	/**
+	 * Applies all specified rules.
+	 * 
+	 * @param someDto
+	 * @param objectMap
+	 */
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private static void applyRules(Object someDto, Map<String, Object> objectMap){
+		Rules rules = someDto.getClass().getAnnotation(Rules.class);
+		if(rules != null){
+			Class<? extends Rule>[] ruleClassList = rules.value();
+			
+			for(Class<? extends Rule> ruleClass : ruleClassList){
+				try {
+					Rule rule = ruleClass.newInstance();
+					try{
+						rule.apply(someDto, objectMap);
+					} catch(Exception e){
+						throw new RuleException("The rule \"" + 
+								rule.getClass().getName() + "\" has errors.", e);
+					}
+				} catch (InstantiationException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 }
