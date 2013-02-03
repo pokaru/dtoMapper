@@ -445,8 +445,8 @@ public class TestDTOMapper {
 		UserDTO someDto = testHelper.getTestUserDTO();
 		Mapper.fromDto(someDto, objectMap);
 		
-		System.out.println("fullname: " + user.getFullName());
-		System.out.println("username: " + user.getUsername());
+		Assert.assertEquals(someDto.getFirstName() + " " + someDto.getLastName(),
+				user.getFullName());
 	}
 
 	/* Failure Cases */
