@@ -46,7 +46,15 @@ Mapping configurations are purely annotation-based.  All the configuration annot
 > If you ever need to declare a field in a DTO that shouldn't be mapped, annotating that field with this annotation will have the mapper ignore that field during the mapping process.
 
 **@Embedded** (field-level)
-> dtoMapper supports embedded dto mapping.  DTO fields decorated with this annotation will inspected by the Mapper and their field values will be transfered to objects found in the object map.
+> dtoMapper supports embedded dto mapping.  DTO fields decorated with this annotation will be inspected by the Mapper and their field values will be transfered to objects found in the object map.
+
+**@Convert** (field-level)
+> #### Attribute: converter=SomeConverter.class
+> dtoMapper also supports type conversions.  To convert the type of a field, during the mapping process, annotate the field to convert with this annotation and specify one of the built in conversion classes in the converter attribute.  You can also extend this framework by writing your own converstion classes.  To write your own conversion class, you simply need to have your conversion class extend the abstract Converter class.
+
+**@Rules** (class-level)
+> #### Attribute: value={Rule1.class, Rule2.class, Rule3.class}
+> When your dto mappings become too complex for the annotations above to handle, this annotation provides a way for a developer create custom mapping rules.  This includes mapping a single dto field to multiple fields in the same object or different objects, conditional mappings, etc.  Using this annotation in combination with custom rules, allows for virtually limitless mapping possibilities.  To create a custom rule, have your rule class extend the abstract Rule class.
 
 If none of this makes sense, take a look at the examples below.
 
@@ -122,6 +130,14 @@ public class MyDTO{
     private SomeMoreGroupedDataDTO someMoreGroupedData;
 }
 ```
+**Type Conversion**
+```java
+public class MyDTO{
+    @Convert(converter=StringToIntegerConverter.class)
+    @MappedField(mappedObjectKey="someKey")
+    private String someField;
+}
+```
 **Ignored Field**
 ```java
 @MappedObject(key="someKey")
@@ -130,3 +146,14 @@ public class MyDTO{
     private String someField;
 }
 ```
+**Custom Rules**
+```java
+@Rules({SomeRule.class})
+@MappedObject(key="someKey")
+public class MyDTO{
+    private String someField;
+    private String someOtherField;
+}
+```
+
+A detailed explanation on how to create a custome rule and type conversion is on the way.
