@@ -424,7 +424,7 @@ public class TestDTOMapper {
 		objectMap.put("converterTestModel", model);
 		
 		ConverterTestDTO dto = new ConverterTestDTO();
-		String someString = "1982";
+		String someString = "16";
 		dto.setString1(someString);
 		Mapper.fromDto(dto, objectMap);
 		

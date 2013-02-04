@@ -34,5 +34,4 @@ public class StringToIntegerConverter extends Converter<String, Integer> {
 	public Class<String> getConversionFromClass() {
 		return String.class;
 	}
-
 }
