@@ -156,4 +156,4 @@ public class MyDTO{
 }
 ```
 
-A detailed explanation on how to create a custome rule and type conversion is on the way.
+A detailed explanation on how to create custom rules and type conversions is on the way.
