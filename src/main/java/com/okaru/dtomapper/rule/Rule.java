@@ -19,4 +19,12 @@ public abstract class Rule<T> {
 	 * @param objectMap
 	 */
 	public abstract void apply(T someDto, Map<String, Object> objectMap);
+	
+	/**
+	 * This implementation should contain the reverse of the apply operation.
+	 * 
+	 * @param someDto
+	 * @param objectMap
+	 */
+	public abstract void reverse(T someDto, Map<String, Object> objectMap);
 }

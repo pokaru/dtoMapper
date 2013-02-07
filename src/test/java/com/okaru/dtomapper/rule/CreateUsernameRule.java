@@ -22,4 +22,9 @@ public class CreateUsernameRule extends Rule<UserDTO>{
 		}
 	}
 
+	@Override
+	public void reverse(UserDTO someDto, Map<String, Object> objectMap) {
+		//No opertaion
+	}
+
 }

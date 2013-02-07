@@ -20,4 +20,12 @@ public class NameRule extends Rule<UserDTO>{
 		User someUser = (User)objectMap.get("user");
 		someUser.setFullName(fullName);
 	}
+
+	@Override
+	public void reverse(UserDTO someDto, Map<String, Object> objectMap) {
+		User someUser = (User)objectMap.get("user");
+		String[] fullNameSplit = someUser.getFullName().split(" ");
+		someDto.setFirstName(fullNameSplit[0]);
+		someDto.setLastName(fullNameSplit[1]);
+	}
 }

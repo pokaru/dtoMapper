@@ -1,6 +1,8 @@
 package com.okaru.dtomapper;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import junit.framework.Assert;
 
@@ -13,11 +15,13 @@ import com.okaru.dtomapper.dto.BusinessDTO;
 import com.okaru.dtomapper.dto.ConverterTestDTO;
 import com.okaru.dtomapper.dto.CustomerDTO;
 import com.okaru.dtomapper.dto.UserDTO;
+import com.okaru.dtomapper.dto.WithListDTO;
 import com.okaru.dtomapper.model.Address;
 import com.okaru.dtomapper.model.Business;
 import com.okaru.dtomapper.model.ConverterTestModel;
 import com.okaru.dtomapper.model.Customer;
 import com.okaru.dtomapper.model.User;
+import com.okaru.dtomapper.model.WithListModel;
 
 /**
  * A suite of test to test the dto <code>Mapper</code>
@@ -473,5 +477,45 @@ public class TestDTOMapper {
 	public void testMapToSetterNoSuchSetter() {
 		// TODO
 		Assert.fail();
+	}
+	
+	@Test
+	public void testListMappingRule(){
+		WithListDTO dto = new WithListDTO();
+		
+		//create and set the dto list
+		List<UserDTO> userDtoList = new ArrayList<UserDTO>();
+		for(int i=0; i<10; i++){
+			userDtoList.add(testHelper.getTestUserDTO());
+		}
+		dto.setUserDtoList(userDtoList);
+		
+		//get a new model and add to the map
+		WithListModel model = new WithListModel();
+		ObjectMap map = new ObjectMap();
+		map.put("withListModel", model);
+		
+		//perform the mapping
+		Mapper.fromDto(dto, map);
+		
+		//verify the model has a populated list of users
+		List<User> userList = model.getUserList();
+		Assert.assertNotNull(userList);
+		for(User user : userList){
+			Assert.assertNotNull(user.getFirstName());
+			Assert.assertNotNull(user.getLastName());
+		}
+		
+		//verify reverse works for a new Dto
+		WithListDTO newDto = new WithListDTO();
+		Mapper.toDto(newDto, map);
+		
+		System.out.println("new dto: \n");
+		List<UserDTO> newUserDtoList = newDto.getUserDtoList();
+		Assert.assertNotNull(newUserDtoList);
+		for(UserDTO userDto : newUserDtoList){
+			Assert.assertNotNull(userDto.getFirstName());
+			Assert.assertNotNull(userDto.getLastName());
+		}
 	}
 }

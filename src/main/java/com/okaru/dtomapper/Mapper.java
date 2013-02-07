@@ -27,6 +27,7 @@ public class Mapper{
 	 */
 	public static void fromDto(Object someDto, ObjectMap objectMap) throws MapperException{
 		beginMapping(someDto, objectMap, true);
+		applyRules(someDto, objectMap.getObjectMap(), false);
 	}
 
 	/**
@@ -38,6 +39,7 @@ public class Mapper{
 	 */
 	public static void toDto(Object someDto, ObjectMap objectMap) throws MapperException{
 		beginMapping(someDto, objectMap, false);
+		applyRules(someDto, objectMap.getObjectMap(), true);
 	}
 	
 	private static void beginMapping(Object someDto, ObjectMap objectMap, boolean toObject) throws MapperException{
@@ -89,7 +91,6 @@ public class Mapper{
 				}
 			}
 		}
-		applyRules(someDto, objectMap.getObjectMap());
 	}
 
 	/**
@@ -195,7 +196,7 @@ public class Mapper{
 	 * @param objectMap
 	 */
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	private static void applyRules(Object someDto, Map<String, Object> objectMap){
+	private static void applyRules(Object someDto, Map<String, Object> objectMap, boolean reverse){
 		Rules rules = someDto.getClass().getAnnotation(Rules.class);
 		if(rules != null){
 			Class<? extends Rule>[] ruleClassList = rules.value();
@@ -204,7 +205,11 @@ public class Mapper{
 				try {
 					Rule rule = ruleClass.newInstance();
 					try{
-						rule.apply(someDto, objectMap);
+						if(!reverse){
+							rule.apply(someDto, objectMap);
+						}else{
+							rule.reverse(someDto, objectMap);
+						}
 					} catch(Exception e){
 						throw new RuleException("The rule \"" + 
 								rule.getClass().getName() + "\" has errors.", e);

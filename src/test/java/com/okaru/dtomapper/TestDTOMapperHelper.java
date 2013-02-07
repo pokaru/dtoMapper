@@ -1,6 +1,7 @@
 package com.okaru.dtomapper;
 
 import java.util.Date;
+import java.util.Random;
 
 import com.okaru.dtomapper.dto.AddressDTO;
 import com.okaru.dtomapper.dto.BusinessAddressDTO;
@@ -52,8 +53,8 @@ public class TestDTOMapperHelper {
 		dto.setUsername("username");
 		dto.setPassword("password");
 		dto.setBirthDate(new Date());
-		dto.setLastName("lastname");
-		dto.setFirstName("firstName");
+		dto.setLastName("lastname" + new Random().nextInt(1000));
+		dto.setFirstName("firstName" + new Random().nextInt(1000));
 		return dto;
 	}
 	
