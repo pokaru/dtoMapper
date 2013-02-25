@@ -16,10 +16,10 @@ objectMap.put("someKey", object1);
 objectMap.put("someOtherKey", object2);
 
 //move data from the dto to objects in the map
-Mapper.fromDto(dto, objectMap);
+mapper.fromDto(dto, objectMap);
 
 //move data from objects in the map to the dto
-Mapper.toDto(dto, objectMap);
+mapper.toDto(dto, objectMap);
 ```
 
 Annotations
