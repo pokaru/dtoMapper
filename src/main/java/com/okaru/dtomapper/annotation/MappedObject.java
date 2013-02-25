@@ -23,4 +23,12 @@ public @interface MappedObject {
 	 * @return
 	 */
 	String key();
+	
+	/**
+	 * (Optional) Tells the mapper whether or not to transfer null values.  By
+	 * default, this attribute is set to false and null values are ignored.
+	 * 
+	 * @return
+	 */
+	boolean transferNulls() default false;
 }

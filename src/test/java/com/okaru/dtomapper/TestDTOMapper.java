@@ -6,6 +6,7 @@ import java.util.List;
 
 import junit.framework.Assert;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.okaru.dtomapper.dto.AddressDTO;
@@ -30,7 +31,13 @@ import com.okaru.dtomapper.model.WithListModel;
  * 
  */
 public class TestDTOMapper {
+	private static Mapper mapper;
 	private TestDTOMapperHelper testHelper = new TestDTOMapperHelper();
+	
+	@BeforeClass
+	public static void before(){
+		mapper = new Mapper();
+	}
 
 	/* Success Cases */
 
@@ -45,7 +52,7 @@ public class TestDTOMapper {
 		AddressDTO someDto = testHelper.getTestAddressDTO();
 
 		// perform mapping and validate
-		Mapper.fromDto(someDto, objectMap);
+		mapper.fromDto(someDto, objectMap);
 		Assert.assertEquals(someDto.getCity(), address.getCity());
 	}
 
@@ -60,7 +67,7 @@ public class TestDTOMapper {
 		BusinessDTO someDto = testHelper.getTestBusinessDTO();
 
 		// perform mapping and validate
-		Mapper.fromDto(someDto, objectMap);
+		mapper.fromDto(someDto, objectMap);
 		Assert.assertEquals(someDto.getName(), business.getName());
 	}
 
@@ -76,7 +83,7 @@ public class TestDTOMapper {
 		AddressDTO someDto = new AddressDTO();
 
 		// perform mapping and validate
-		Mapper.toDto(someDto, objectMap);
+		mapper.toDto(someDto, objectMap);
 		Assert.assertNotNull(someDto.getCity());
 		Assert.assertEquals(someDto.getCity(), address.getCity());
 	}
@@ -93,7 +100,7 @@ public class TestDTOMapper {
 		BusinessDTO someDto = new BusinessDTO();
 
 		// perform mapping and validate
-		Mapper.toDto(someDto, objectMap);
+		mapper.toDto(someDto, objectMap);
 		Assert.assertNotNull(someDto.getName());
 		Assert.assertEquals(someDto.getName(), business.getName());
 	}
@@ -109,7 +116,7 @@ public class TestDTOMapper {
 		AddressDTO someDto = testHelper.getTestAddressDTO();
 
 		// perform mapping and validate
-		Mapper.fromDto(someDto, objectMap);
+		mapper.fromDto(someDto, objectMap);
 		Assert.assertEquals(someDto.getAddressState(), address.getState());
 	}
 
@@ -124,7 +131,7 @@ public class TestDTOMapper {
 		BusinessDTO someDto = testHelper.getTestBusinessDTO();
 
 		// perform mapping and validate
-		Mapper.fromDto(someDto, objectMap);
+		mapper.fromDto(someDto, objectMap);
 		Assert.assertEquals(someDto.getDateFounded(), business.getFounded());
 	}
 
@@ -140,7 +147,7 @@ public class TestDTOMapper {
 		AddressDTO someDto = new AddressDTO();
 
 		// perform mapping and validate
-		Mapper.toDto(someDto, objectMap);
+		mapper.toDto(someDto, objectMap);
 		Assert.assertNotNull(someDto.getAddressState());
 		Assert.assertEquals(someDto.getAddressState(), address.getState());
 	}
@@ -157,7 +164,7 @@ public class TestDTOMapper {
 		BusinessDTO someDto = new BusinessDTO();
 
 		// perform mapping and validate
-		Mapper.toDto(someDto, objectMap);
+		mapper.toDto(someDto, objectMap);
 		Assert.assertNotNull(someDto.getDateFounded());
 		Assert.assertEquals(someDto.getDateFounded(), business.getFounded());
 	}
@@ -175,7 +182,7 @@ public class TestDTOMapper {
 		BusinessAddressDTO someDto = testHelper.getTestBusinessAddressDTO();
 
 		// perform mapping and validate
-		Mapper.fromDto(someDto, objectMap);
+		mapper.fromDto(someDto, objectMap);
 		Assert.assertNotNull(someDto.getCity());
 		Assert.assertNotNull(someDto.getZip());
 		Assert.assertNotNull(someDto.getAddressState());
@@ -213,7 +220,7 @@ public class TestDTOMapper {
 		BusinessAddressDTO someDto = new BusinessAddressDTO();
 				
 		// perform mapping and validate
-		Mapper.toDto(someDto, objectMap);
+		mapper.toDto(someDto, objectMap);
 		Assert.assertNotNull(someDto.getCity());
 		Assert.assertNotNull(someDto.getZip());
 		Assert.assertNotNull(someDto.getAddressState());
@@ -309,7 +316,7 @@ public class TestDTOMapper {
 		objectMap.put("user", user);
 		
 		UserDTO someDto = testHelper.getTestUserDTO();
-		Mapper.fromDto(someDto, objectMap);
+		mapper.fromDto(someDto, objectMap);
 
 		Assert.assertNotNull(someDto.getUsername());
 		Assert.assertNotNull(someDto.getPassword());
@@ -340,7 +347,7 @@ public class TestDTOMapper {
 		BusinessAddressEmbeddedDTO someDto = testHelper.getBusinessAddressEmbeddedDTO();
 
 		// perform mapping and validate
-		Mapper.fromDto(someDto, objectMap);
+		mapper.fromDto(someDto, objectMap);
 		Assert.assertNotNull(someDto.getAddressDTO().getCity());
 		Assert.assertNotNull(someDto.getAddressDTO().getZip());
 		Assert.assertNotNull(someDto.getAddressDTO().getAddressState());
@@ -380,7 +387,7 @@ public class TestDTOMapper {
 		someDto.setBusinessDTO(new BusinessDTO());
 				
 		// perform mapping and validate
-		Mapper.toDto(someDto, objectMap);
+		mapper.toDto(someDto, objectMap);
 		Assert.assertNotNull(someDto.getAddressDTO().getCity());
 		Assert.assertNotNull(someDto.getAddressDTO().getZip());
 		Assert.assertNotNull(someDto.getAddressDTO().getAddressState());
@@ -404,7 +411,7 @@ public class TestDTOMapper {
 		objectMap.put("customer", customer);
 		
 		CustomerDTO dto = testHelper.getTestCustomerDTO();
-		Mapper.fromDto(dto, objectMap);
+		mapper.fromDto(dto, objectMap);
 
 		Assert.assertNotNull(dto.getFirstName());
 		Assert.assertNotNull(dto.getLastName());
@@ -430,12 +437,12 @@ public class TestDTOMapper {
 		ConverterTestDTO dto = new ConverterTestDTO();
 		String someString = "16";
 		dto.setString1(someString);
-		Mapper.fromDto(dto, objectMap);
+		mapper.fromDto(dto, objectMap);
 		
 		Assert.assertEquals(Integer.valueOf(someString), model.getInteger1());
 		
 		ConverterTestDTO newDto = new ConverterTestDTO();
-		Mapper.toDto(newDto, objectMap);
+		mapper.toDto(newDto, objectMap);
 		
 		Assert.assertEquals(someString, newDto.getString1());
 	}
@@ -447,12 +454,54 @@ public class TestDTOMapper {
 		objectMap.put("user", user);
 		
 		UserDTO someDto = testHelper.getTestUserDTO();
-		Mapper.fromDto(someDto, objectMap);
+		mapper.fromDto(someDto, objectMap);
 		
 		Assert.assertEquals(someDto.getFirstName() + " " + someDto.getLastName(),
 				user.getFullName());
 	}
-
+	
+	@Test
+	public void testDoNotTransferNullsForFields(){
+		String firstName = "AlreadySetFirstName";
+		User user = new User();
+		user.setFirstName(firstName);
+		ObjectMap objectMap = new ObjectMap();
+		objectMap.put("user", user);
+		
+		UserDTO someDto = testHelper.getTestUserDTO();
+		someDto.setFirstName(null);
+		mapper.fromDto(someDto, objectMap);
+		
+		Assert.assertEquals(firstName, user.getFirstName());
+	}
+	
+	@Test
+	public void testTransferNullsForFields(){
+		String lastName = "AlreadySetLastName";
+		User user = new User();
+		user.setLastName(lastName);
+		ObjectMap objectMap = new ObjectMap();
+		objectMap.put("user", user);
+		
+		UserDTO someDto = testHelper.getTestUserDTO();
+		someDto.setLastName(null);
+		mapper.fromDto(someDto, objectMap);
+		
+		Assert.assertNull(user.getLastName());
+	}
+	
+	//@Test
+	public void testDoNotTransferNullsForSetters(){
+		// TODO
+		Assert.fail();
+	}
+	
+	//@Test
+	public void testTransferNullsForSetters(){
+		// TODO
+		Assert.fail();
+	}
+	
 	/* Failure Cases */
 
 	//@Test(expected=MapperException.class)
@@ -496,7 +545,7 @@ public class TestDTOMapper {
 		map.put("withListModel", model);
 		
 		//perform the mapping
-		Mapper.fromDto(dto, map);
+		mapper.fromDto(dto, map);
 		
 		//verify the model has a populated list of users
 		List<User> userList = model.getUserList();
@@ -508,7 +557,7 @@ public class TestDTOMapper {
 		
 		//verify reverse works for a new Dto
 		WithListDTO newDto = new WithListDTO();
-		Mapper.toDto(newDto, map);
+		mapper.toDto(newDto, map);
 		
 		System.out.println("new dto: \n");
 		List<UserDTO> newUserDtoList = newDto.getUserDtoList();

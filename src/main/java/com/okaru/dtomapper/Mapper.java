@@ -6,9 +6,12 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import com.okaru.dtomapper.annotation.Rules;
+import com.okaru.dtomapper.converter.ConverterFactory;
 import com.okaru.dtomapper.exception.MapperException;
 import com.okaru.dtomapper.exception.RuleException;
+import com.okaru.dtomapper.rule.DefaultRuleFactory;
 import com.okaru.dtomapper.rule.Rule;
+import com.okaru.dtomapper.rule.RuleFactory;
 
 /**
  * Maps values from dto objects to other objects and vice versa.  Mappings are
@@ -18,6 +21,9 @@ import com.okaru.dtomapper.rule.Rule;
  * @author pokaru
  */
 public class Mapper{
+	private RuleFactory ruleFactory;
+	private MapperUtils mapperUtils = new MapperUtils();
+	
 	/**
 	 * Maps field values from <code>someDto</code> to fields of objects in the
 	 * <code>objectMap</code>.
@@ -25,7 +31,7 @@ public class Mapper{
 	 * @param someDto
 	 * @param objectMap
 	 */
-	public static void fromDto(Object someDto, ObjectMap objectMap) throws MapperException{
+	public void fromDto(Object someDto, ObjectMap objectMap) throws MapperException{
 		beginMapping(someDto, objectMap, true);
 		applyRules(someDto, objectMap.getObjectMap(), false);
 	}
@@ -37,12 +43,12 @@ public class Mapper{
 	 * @param someDto
 	 * @param objectMap
 	 */
-	public static void toDto(Object someDto, ObjectMap objectMap) throws MapperException{
+	public void toDto(Object someDto, ObjectMap objectMap) throws MapperException{
 		beginMapping(someDto, objectMap, false);
 		applyRules(someDto, objectMap.getObjectMap(), true);
 	}
 	
-	private static void beginMapping(Object someDto, ObjectMap objectMap, boolean toObject) throws MapperException{
+	private void beginMapping(Object someDto, ObjectMap objectMap, boolean toObject) throws MapperException{
 		if(someDto == null){
 			throw new MapperException("The DTO cannot be null.");
 		}
@@ -51,12 +57,12 @@ public class Mapper{
 			throw new MapperException("The object map cannot be null.");
 		}
 		
-		String clmd = MapperUtils.getClassLevelMappingDestination(someDto);
+		String clmd = mapperUtils.getClassLevelMappingDestination(someDto);
 		
-		Field[] fields = MapperUtils.getFields(someDto.getClass());
+		Field[] fields = mapperUtils.getFields(someDto.getClass());
 		for(Field field : fields){
-			if(!MapperUtils.isIgnored(field)){
-				if(MapperUtils.isEmbeddedDto(field)){
+			if(!mapperUtils.isIgnored(field)){
+				if(mapperUtils.isEmbeddedDto(field)){
 					Object embeddedDto;
 					try {
 						field.setAccessible(true);
@@ -75,7 +81,9 @@ public class Mapper{
 						e.printStackTrace();
 					}
 				}else{
-					String flmd = MapperUtils.getFieldLevelMappingDestination(field);
+					String flmd = mapperUtils.getFieldLevelMappingDestination(field);
+					
+					boolean transferNulls = mapperUtils.getTransferNulls(field);
 		
 					String destination = null;
 					if(clmd == null && flmd == null){
@@ -87,7 +95,7 @@ public class Mapper{
 							    someDto.getClass().getName());
 					}
 					destination = (flmd == null)? clmd:flmd;
-					transfer(field, someDto, destination, objectMap, toObject);
+					transfer(field, someDto, destination, objectMap, toObject, transferNulls);
 				}
 			}
 		}
@@ -102,15 +110,16 @@ public class Mapper{
 	 * @param destination
 	 * @param objectMap
 	 */
-	private static void transfer(Field field, Object someDto,
-			String destination, ObjectMap objectMap, boolean toObject) throws MapperException{
-		String fieldName = MapperUtils.getDestinationFieldName(field);
+	private void transfer(Field field, Object someDto,
+			String destination, ObjectMap objectMap, boolean toObject,
+			boolean transferNulls) throws MapperException{
+		String fieldName = mapperUtils.getDestinationFieldName(field);
 		Object object = objectMap.get(destination);
 		if(object != null){
-			if(MapperUtils.mapsToField(field)){
-				handleFieldMapping(field, someDto, fieldName, object, toObject);
+			if(mapperUtils.mapsToField(field)){
+				handleFieldMapping(field, someDto, fieldName, object, toObject, transferNulls);
 			}else{
-				handleSetterMapping(field, someDto, fieldName, object, toObject);
+				handleSetterMapping(field, someDto, fieldName, object, toObject, transferNulls);
 			}
 		}else{
 			throw new MapperException("No object with the key \"" 
@@ -119,18 +128,23 @@ public class Mapper{
 		}
 	}
 	
-	private static void handleFieldMapping(Field field, Object someDto,
-			String fieldName, Object object, boolean toObject) throws MapperException{
+	private void handleFieldMapping(Field field, Object someDto,
+			String fieldName, Object object, boolean toObject, 
+			boolean transferNulls) throws MapperException{
 		Field objectField = null;
 		try {
-			objectField = MapperUtils.getField(object.getClass(), fieldName);
+			objectField = mapperUtils.getField(object.getClass(), fieldName);
 				objectField.setAccessible(true);
 				field.setAccessible(true);
 				
 				if(toObject){
-					objectField.set(object, MapperUtils.convertToObjectType(field, someDto));
+					if(transferNulls || (field.get(someDto) != null)){
+						objectField.set(object, mapperUtils.convertToObjectType(field, someDto));
+					}
 				}else{
-					field.set(someDto, MapperUtils.convertFromObjectType(field, objectField, object));
+					if(transferNulls || (objectField.get(object) != null)){
+						field.set(someDto, mapperUtils.convertFromObjectType(field, objectField, object));
+					}
 				}
 		} catch (NoSuchFieldException e) {
 			throw new MapperException("Field, " + fieldName + ", does " +
@@ -148,18 +162,20 @@ public class Mapper{
 		}
 	}
 	
-	private static void handleSetterMapping(Field field, Object someDto,
-			String fieldName, Object object, boolean toObject) throws MapperException{
+	private void handleSetterMapping(Field field, Object someDto,
+			String fieldName, Object object, boolean toObject, boolean transferNulls) throws MapperException{
 		try {
 			if(toObject){
-				String setterMethodName = MapperUtils.getSetterMethodName(fieldName);
+				String setterMethodName = mapperUtils.getSetterMethodName(fieldName);
 				field.setAccessible(true);
 				Method method;
 				try {
-					method = MapperUtils.getMethod(object.getClass(), setterMethodName, field.get(someDto).getClass());
+					method = mapperUtils.getMethod(object.getClass(), setterMethodName, field.get(someDto).getClass());
 					method.setAccessible(true);
 					Object someObject = field.get(someDto);
-					method.invoke(object, someObject);
+					if(transferNulls || (someObject != null)){
+						method.invoke(object, someObject);
+					}
 				} catch (NoSuchMethodException e) {
 					throw new MapperException("No such method \""+setterMethodName+
 							"("+field.get(someDto).getClass().getName()+")\" " +
@@ -168,13 +184,15 @@ public class Mapper{
 					throw new MapperException(e);
 				}
 			}else{
-				String getterMethodName = MapperUtils.getGetterMethodName(fieldName);
+				String getterMethodName = mapperUtils.getGetterMethodName(fieldName);
 				Method method;
 				try {
-					method = MapperUtils.getMethod(object.getClass(), getterMethodName);
+					method = mapperUtils.getMethod(object.getClass(), getterMethodName);
 					method.setAccessible(true);
 					field.setAccessible(true);
-					field.set(someDto, method.invoke(object));
+					if(transferNulls || (method.invoke(object) != null)){
+						field.set(someDto, method.invoke(object));
+					}
 				} catch (NoSuchMethodException e) {
 					throw new MapperException("No such method \""+getterMethodName+"()\" " +
 									"in object " + object.getClass().getName(), e);
@@ -196,30 +214,39 @@ public class Mapper{
 	 * @param objectMap
 	 */
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	private static void applyRules(Object someDto, Map<String, Object> objectMap, boolean reverse){
+	private void applyRules(Object someDto, Map<String, Object> objectMap, boolean reverse){
 		Rules rules = someDto.getClass().getAnnotation(Rules.class);
 		if(rules != null){
 			Class<? extends Rule>[] ruleClassList = rules.value();
 			
 			for(Class<? extends Rule> ruleClass : ruleClassList){
-				try {
-					Rule rule = ruleClass.newInstance();
-					try{
-						if(!reverse){
-							rule.apply(someDto, objectMap);
-						}else{
-							rule.reverse(someDto, objectMap);
-						}
-					} catch(Exception e){
-						throw new RuleException("The rule \"" + 
-								rule.getClass().getName() + "\" has errors.", e);
+				Rule rule = getRuleFactory().getRule(ruleClass);
+				try{
+					if(!reverse){
+						rule.apply(someDto, objectMap);
+					}else{
+						rule.reverse(someDto, objectMap);
 					}
-				} catch (InstantiationException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
+				} catch(Exception e){
+					throw new RuleException("The rule \"" + 
+							rule.getClass().getName() + "\" has errors.", e);
 				}
 			}
 		}
+	}
+	
+	public RuleFactory getRuleFactory(){
+		if(ruleFactory == null){
+			ruleFactory = new DefaultRuleFactory();
+		}
+		return ruleFactory;
+	}
+	
+	public void setRuleFactory(RuleFactory factory){
+		this.ruleFactory = factory;
+	}
+	
+	public void setConverterFactory(ConverterFactory factory){
+		mapperUtils.setConverterFactory(factory);
 	}
 }

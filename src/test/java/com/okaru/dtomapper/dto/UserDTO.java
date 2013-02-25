@@ -3,6 +3,7 @@ package com.okaru.dtomapper.dto;
 import java.util.Date;
 
 import com.okaru.dtomapper.annotation.Ignore;
+import com.okaru.dtomapper.annotation.MappedField;
 import com.okaru.dtomapper.annotation.MappedObject;
 import com.okaru.dtomapper.annotation.Rules;
 import com.okaru.dtomapper.rule.NameRule;
@@ -15,6 +16,7 @@ public class UserDTO {
 	@Ignore
 	private String password;
 	private String firstName;
+	@MappedField(transferNulls=true)
 	private String lastName;
 	private Date birthDate;
 	

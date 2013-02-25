@@ -13,6 +13,8 @@ import com.okaru.dtomapper.annotation.MappedField;
 import com.okaru.dtomapper.annotation.MappedField.MapsTo;
 import com.okaru.dtomapper.annotation.MappedObject;
 import com.okaru.dtomapper.converter.Converter;
+import com.okaru.dtomapper.converter.ConverterFactory;
+import com.okaru.dtomapper.converter.DefaultConverterFactory;
 import com.okaru.dtomapper.exception.ConversionException;
 
 /**
@@ -22,6 +24,16 @@ import com.okaru.dtomapper.exception.ConversionException;
  * 
  */
 public class MapperUtils {
+	private ConverterFactory converterFactory;
+	
+	public boolean getTransferNulls(Field field){
+		MappedField annotation = field.getAnnotation(MappedField.class);
+		if(annotation != null){
+			return annotation.transferNulls();
+		}
+		return false;
+	}
+	
 	/**
 	 * Performs type conversion on the specified field within the specified
 	 * object, if an Convert annotation is found on the field, then returns
@@ -32,13 +44,13 @@ public class MapperUtils {
 	 * @return
 	 */
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	public static Object convertFromObjectType(Field dtoField, Field objectField, Object object) {
+	public Object convertFromObjectType(Field dtoField, Field objectField, Object object) {
 		Convert convertAnnotation = dtoField.getAnnotation(Convert.class);
 		try {
 			if (convertAnnotation != null) {
 				Class<? extends Converter<?, ?>> converterClass = convertAnnotation
 						.converter();
-				Converter converter = converterClass.newInstance();
+				Converter converter = getConverterFactory().getConverter(converterClass);
 				Object fieldValue = objectField.get(object);
 				return converter.convertTo(converter.getConversionToClass().cast(fieldValue));
 			} else {
@@ -48,8 +60,6 @@ public class MapperUtils {
 			throw new ConversionException("The conversion class specified was " +
 					"invald for \"" + dtoField.getDeclaringClass().getName() + "." + 
 					dtoField.getName() + "\"", e);
-		} catch (InstantiationException e) {
-			e.printStackTrace();
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}
@@ -66,13 +76,13 @@ public class MapperUtils {
 	 * @return
 	 */
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	public static Object convertToObjectType(Field field, Object object) {
+	public Object convertToObjectType(Field field, Object object) {
 		Convert convertAnnotation = field.getAnnotation(Convert.class);
 		try {
 			if (convertAnnotation != null) {
 				Class<? extends Converter<?, ?>> converterClass = convertAnnotation
 						.converter();
-				Converter converter = converterClass.newInstance();
+				Converter converter = getConverterFactory().getConverter(converterClass);
 				Object fieldValue = field.get(object);
 				return converter.convertFrom(converter.getConversionFromClass().cast(fieldValue));
 			} else {
@@ -82,8 +92,6 @@ public class MapperUtils {
 			throw new ConversionException("The conversion class specified was " +
 					"invald for \"" + object.getClass().getName() + "." + 
 					field.getName() + "\"", e);
-		} catch (InstantiationException e) {
-			e.printStackTrace();
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}
@@ -99,7 +107,7 @@ public class MapperUtils {
 	 * @throws NoSuchMethodException
 	 * @throws SecurityException
 	 */
-	public static Method getMethod(Class<?> someClass, String methodName,
+	public Method getMethod(Class<?> someClass, String methodName,
 			Class<?>... parameterTypes) throws NoSuchMethodException,
 			SecurityException {
 		if (someClass != null) {
@@ -122,7 +130,7 @@ public class MapperUtils {
 	 * @throws NoSuchFieldException
 	 * @throws SecurityException
 	 */
-	public static Field getField(Class<?> someClass, String fieldName)
+	public Field getField(Class<?> someClass, String fieldName)
 			throws NoSuchFieldException, SecurityException {
 		if (someClass != null) {
 			try {
@@ -142,7 +150,7 @@ public class MapperUtils {
 	 * @param someClass
 	 * @return
 	 */
-	public static Field[] getFields(Class<?> someClass) {
+	public Field[] getFields(Class<?> someClass) {
 		List<Field> fieldList = new ArrayList<Field>();
 		findFields(fieldList, someClass);
 		return fieldList.toArray(new Field[fieldList.size()]);
@@ -154,7 +162,7 @@ public class MapperUtils {
 	 * @param fieldList
 	 * @param someClass
 	 */
-	private static void findFields(List<Field> fieldList, Class<?> someClass) {
+	private void findFields(List<Field> fieldList, Class<?> someClass) {
 		if (someClass != null) {
 			Collections.addAll(fieldList, someClass.getDeclaredFields());
 		}
@@ -169,7 +177,7 @@ public class MapperUtils {
 	 * @param someDto
 	 * @return
 	 */
-	public static String getClassLevelMappingDestination(Object someDto) {
+	public String getClassLevelMappingDestination(Object someDto) {
 		MappedObject dest = someDto.getClass()
 				.getAnnotation(MappedObject.class);
 		return (dest != null) ? dest.key() : null;
@@ -181,7 +189,7 @@ public class MapperUtils {
 	 * @param field
 	 * @return
 	 */
-	public static String getFieldLevelMappingDestination(Field field) {
+	public String getFieldLevelMappingDestination(Field field) {
 		MappedField mapping = field.getAnnotation(MappedField.class);
 		if ((mapping != null) && (!mapping.mappedObjectKey().isEmpty())) {
 			return mapping.mappedObjectKey();
@@ -196,7 +204,7 @@ public class MapperUtils {
 	 * @param field
 	 * @return
 	 */
-	public static String getDestinationFieldName(Field field) {
+	public String getDestinationFieldName(Field field) {
 		MappedField mapping = field.getAnnotation(MappedField.class);
 		if ((mapping != null) && (!mapping.field().isEmpty())) {
 			return mapping.field();
@@ -211,7 +219,7 @@ public class MapperUtils {
 	 * @param field
 	 * @return
 	 */
-	public static boolean mapsToField(Field field) {
+	public boolean mapsToField(Field field) {
 		MappedField mapping = field.getAnnotation(MappedField.class);
 		if ((mapping != null) && (mapping.mapsTo().equals(MapsTo.SETTER))) {
 			return false;
@@ -225,7 +233,7 @@ public class MapperUtils {
 	 * @param f
 	 * @return
 	 */
-	public static boolean isIgnored(Field f) {
+	public boolean isIgnored(Field f) {
 		return (f.getAnnotation(Ignore.class) != null);
 	}
 
@@ -235,7 +243,7 @@ public class MapperUtils {
 	 * @param f
 	 * @return
 	 */
-	public static boolean isEmbeddedDto(Field f) {
+	public boolean isEmbeddedDto(Field f) {
 		return (f.getAnnotation(Embedded.class) != null);
 	}
 
@@ -245,7 +253,7 @@ public class MapperUtils {
 	 * @param f
 	 * @return
 	 */
-	public static String getSetterMethodName(String fieldName) {
+	public String getSetterMethodName(String fieldName) {
 		return "set"
 				+ new String(fieldName.charAt(0) + "").toUpperCase().concat(
 						fieldName.substring(1));
@@ -257,9 +265,20 @@ public class MapperUtils {
 	 * @param f
 	 * @return
 	 */
-	public static String getGetterMethodName(String fieldName) {
+	public String getGetterMethodName(String fieldName) {
 		return "get"
 				+ new String(fieldName.charAt(0) + "").toUpperCase().concat(
 						fieldName.substring(1));
+	}
+	
+	public ConverterFactory getConverterFactory(){
+		if(converterFactory == null){
+			converterFactory = new DefaultConverterFactory();
+		}
+		return converterFactory;
+	}
+	
+	public void setConverterFactory(ConverterFactory factory){
+		converterFactory = factory;
 	}
 }

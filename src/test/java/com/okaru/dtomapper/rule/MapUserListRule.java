@@ -12,6 +12,7 @@ import com.okaru.dtomapper.model.User;
 import com.okaru.dtomapper.model.WithListModel;
 
 public class MapUserListRule extends Rule<WithListDTO>{
+	private Mapper mapper = new Mapper();
 
 	@Override
 	public void apply(WithListDTO someDto, Map<String, Object> objectMap) {
@@ -20,7 +21,7 @@ public class MapUserListRule extends Rule<WithListDTO>{
 		for(UserDTO dto : userDtoList){
 			ObjectMap tempObjectMap = new ObjectMap();
 			tempObjectMap.put("user", new User());
-			Mapper.fromDto(dto, tempObjectMap);
+			mapper.fromDto(dto, tempObjectMap);
 			userList.add((User)tempObjectMap.get("user"));
 		}
 		WithListModel model = (WithListModel)objectMap.get("withListModel");
@@ -35,7 +36,7 @@ public class MapUserListRule extends Rule<WithListDTO>{
 			ObjectMap tempObjectMap = new ObjectMap();
 			tempObjectMap.put("user", user);
 			UserDTO tempDto = new UserDTO();
-			Mapper.toDto(tempDto, tempObjectMap);
+			mapper.toDto(tempDto, tempObjectMap);
 			userDtoList.add(tempDto);
 		}
 		someDto.setUserDtoList(userDtoList);
