@@ -11,7 +11,7 @@ Usage
 ```java
 ...
 
-Map<String, Object> objectMap = new HashMap<String, Object>();
+ObjectMap objectMap = new ObjectMap();
 objectMap.put("someKey", object1);
 objectMap.put("someOtherKey", object2);
 
