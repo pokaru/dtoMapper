@@ -114,7 +114,7 @@ public class MapperUtils {
 			try {
 				return someClass.getDeclaredMethod(methodName, parameterTypes);
 			} catch (NoSuchMethodException e) {
-				return getMethod(someClass.getSuperclass(), methodName);
+				return getMethod(someClass.getSuperclass(), methodName, parameterTypes);
 			}
 		} else {
 			throw new NoSuchMethodException();

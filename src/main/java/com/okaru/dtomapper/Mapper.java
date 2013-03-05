@@ -134,18 +134,18 @@ public class Mapper{
 		Field objectField = null;
 		try {
 			objectField = mapperUtils.getField(object.getClass(), fieldName);
-				objectField.setAccessible(true);
-				field.setAccessible(true);
-				
-				if(toObject){
-					if(transferNulls || (field.get(someDto) != null)){
-						objectField.set(object, mapperUtils.convertToObjectType(field, someDto));
-					}
-				}else{
-					if(transferNulls || (objectField.get(object) != null)){
-						field.set(someDto, mapperUtils.convertFromObjectType(field, objectField, object));
-					}
+			objectField.setAccessible(true);
+			field.setAccessible(true);
+			
+			if(toObject){
+				if(transferNulls || (field.get(someDto) != null)){
+					objectField.set(object, mapperUtils.convertToObjectType(field, someDto));
 				}
+			}else{
+				if(transferNulls || (objectField.get(object) != null)){
+					field.set(someDto, mapperUtils.convertFromObjectType(field, objectField, object));
+				}
+			}
 		} catch (NoSuchFieldException e) {
 			throw new MapperException("Field, " + fieldName + ", does " +
 					"not exist on object " + object.getClass().getName(), e);
@@ -170,7 +170,7 @@ public class Mapper{
 				field.setAccessible(true);
 				Method method;
 				try {
-					method = mapperUtils.getMethod(object.getClass(), setterMethodName, field.get(someDto).getClass());
+					method = mapperUtils.getMethod(object.getClass(), setterMethodName, field.getType());
 					method.setAccessible(true);
 					Object someObject = field.get(someDto);
 					if(transferNulls || (someObject != null)){
@@ -178,7 +178,7 @@ public class Mapper{
 					}
 				} catch (NoSuchMethodException e) {
 					throw new MapperException("No such method \""+setterMethodName+
-							"("+field.get(someDto).getClass().getName()+")\" " +
+							"("+field.getType().getName()+")\" " +
 									"in object " + object.getClass().getName(), e);
 				} catch (IllegalArgumentException e) {
 					throw new MapperException(e);
