@@ -22,6 +22,7 @@ import com.okaru.dtomapper.rule.RuleFactory;
  */
 public class Mapper{
 	private RuleFactory ruleFactory;
+	private ConverterFactory converterFactory;
 	private MapperUtils mapperUtils = new MapperUtils();
 	
 	/**
@@ -67,19 +68,18 @@ public class Mapper{
 					try {
 						field.setAccessible(true);
 						embeddedDto = field.get(someDto);
-						if(embeddedDto != null){
-							beginMapping(embeddedDto, objectMap, toObject);
-						}else{
-							throw new MapperException("Embedded DTO \"" + 
-									field.getName() + "\" of " + 
-									someDto.getClass().getName() + " is null. " +
-										"Embedded DTOs cannot be null.");
+						if(embeddedDto == null){
+							field.set(someDto, field.getType().newInstance());
+							embeddedDto = field.get(someDto);
 						}
+						beginMapping(embeddedDto, objectMap, toObject);
 					} catch (IllegalArgumentException e) {
 						e.printStackTrace();
 					} catch (IllegalAccessException e) {
 						e.printStackTrace();
-					}
+					} catch (InstantiationException e) {
+	                    e.printStackTrace();
+                    }
 				}else{
 					String flmd = mapperUtils.getFieldLevelMappingDestination(field);
 					
@@ -247,6 +247,7 @@ public class Mapper{
 	}
 	
 	public void setConverterFactory(ConverterFactory factory){
-		mapperUtils.setConverterFactory(factory);
+		converterFactory = factory;
+		mapperUtils.setConverterFactory(converterFactory);
 	}
 }
