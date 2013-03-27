@@ -1,5 +1,6 @@
 package com.okaru.dtomapper;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -245,6 +246,29 @@ public class MapperUtils {
 	 */
 	public boolean isEmbeddedDto(Field f) {
 		return (f.getAnnotation(Embedded.class) != null);
+	}
+	
+	/**
+	 * Returns whether the specified 
+	 * @param o
+	 * @return
+	 */
+	public boolean isMappedObject(Object o){
+		Annotation[] annotations = o.getClass().getAnnotations();
+		for(Annotation annotation : annotations){
+			if(annotation.annotationType().equals(MappedObject.class)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public String getMappedObjectKey(Object o){
+		if(isMappedObject(o)){
+			MappedObject annotation = o.getClass().getAnnotation(MappedObject.class);
+			return annotation.key();
+		}
+		return null;
 	}
 
 	/**

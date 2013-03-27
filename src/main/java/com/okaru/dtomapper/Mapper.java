@@ -20,6 +20,7 @@ import com.okaru.dtomapper.rule.RuleFactory;
  * 
  * @author pokaru
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class Mapper{
 	private RuleFactory ruleFactory;
 	private ConverterFactory converterFactory;
@@ -47,6 +48,49 @@ public class Mapper{
 	public void toDto(Object someDto, ObjectMap objectMap) throws MapperException{
 		beginMapping(someDto, objectMap, false);
 		applyRules(someDto, objectMap.getObjectMap(), true);
+	}
+	
+	/**
+	 * A convenience method that will perform the mapping with out having to manually
+	 * create an ObjectMap.  This assumes the rules selected to be used (source or 
+	 * destination), are configured/annotated properly.
+	 * 
+	 * @param source
+	 * @param destination
+	 * @return
+	 */
+	public Object map(Object source, Object destination, boolean useSourceRules) {
+		if(useSourceRules && !mapperUtils.isMappedObject(source)){
+			throw new MapperException("The source needs to be a mapped object.");
+		}
+		if(!useSourceRules && !mapperUtils.isMappedObject(destination)){
+			throw new MapperException("The destination needs to be a mapped object.");
+		}
+
+		ObjectMap objectMap = new ObjectMap();
+		String key = null;
+		if(useSourceRules){
+			key = mapperUtils.getMappedObjectKey(source);
+			objectMap.put(key, destination);
+			fromDto(source, objectMap);
+		}else{
+			key = mapperUtils.getMappedObjectKey(destination);
+			objectMap.put(key, source);
+			toDto(destination, objectMap);
+		}
+		return destination;
+	}
+
+	/**
+	 * Maps the source dto to the destination object using the annotation based
+	 * mapping rules on the source dto.
+	 * 
+	 * @param source
+	 * @param destination
+	 * @return
+	 */
+	public Object map(Object source, Object destination) {
+		return map(source, destination, true);
 	}
 	
 	private void beginMapping(Object someDto, ObjectMap objectMap, boolean toObject) throws MapperException{
@@ -213,7 +257,6 @@ public class Mapper{
 	 * @param someDto
 	 * @param objectMap
 	 */
-	@SuppressWarnings({"rawtypes", "unchecked"})
 	private void applyRules(Object someDto, Map<String, Object> objectMap, boolean reverse){
 		Rules rules = someDto.getClass().getAnnotation(Rules.class);
 		if(rules != null){
