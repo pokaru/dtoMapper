@@ -113,7 +113,17 @@ public class Mapper{
 						field.setAccessible(true);
 						embeddedDto = field.get(someDto);
 						if(embeddedDto == null){
-							field.set(someDto, field.getType().newInstance());
+							//TODO clean this up!
+							Object newEmbeddedDto = field.getType().newInstance();
+							String embeddedKey = mapperUtils.getMappedObjectKey(newEmbeddedDto);
+							String dtoKey = mapperUtils.getMappedObjectKey(someDto);
+							Object dtoMappedObject = objectMap.get(dtoKey);
+							String fieldName = mapperUtils.getDestinationFieldName(field);
+							Field dtoMappedObjectField = mapperUtils.getField(dtoMappedObject.getClass(), fieldName);
+							dtoMappedObjectField.setAccessible(true);
+							Object embeddedMappedObject = dtoMappedObjectField.get(dtoMappedObject);
+							field.set(someDto, newEmbeddedDto);
+							objectMap.put(embeddedKey, embeddedMappedObject);
 							embeddedDto = field.get(someDto);
 						}
 						beginMapping(embeddedDto, objectMap, toObject);
@@ -122,6 +132,10 @@ public class Mapper{
 					} catch (IllegalAccessException e) {
 						e.printStackTrace();
 					} catch (InstantiationException e) {
+	                    e.printStackTrace();
+                    } catch (SecurityException e) {
+	                    e.printStackTrace();
+                    } catch (NoSuchFieldException e) {
 	                    e.printStackTrace();
                     }
 				}else{
