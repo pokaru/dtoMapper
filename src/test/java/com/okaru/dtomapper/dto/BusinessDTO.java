@@ -3,7 +3,9 @@ package com.okaru.dtomapper.dto;
 import java.util.Date;
 
 import com.okaru.dtomapper.annotation.MappedField;
+import com.okaru.dtomapper.annotation.MappedObject;
 
+@MappedObject(key="business")
 public class BusinessDTO {
 	@MappedField(mappedObjectKey="business")
 	private String name;

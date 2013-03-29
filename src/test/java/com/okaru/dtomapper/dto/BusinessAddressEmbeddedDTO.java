@@ -1,7 +1,9 @@
 package com.okaru.dtomapper.dto;
 
 import com.okaru.dtomapper.annotation.Embedded;
+import com.okaru.dtomapper.annotation.MappedObject;
 
+@MappedObject(key="businessAddress")
 public class BusinessAddressEmbeddedDTO {
 	@Embedded
 	private AddressDTO addressDTO;

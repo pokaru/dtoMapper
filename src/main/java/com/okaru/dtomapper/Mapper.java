@@ -104,6 +104,7 @@ public class Mapper{
 		
 		String clmd = mapperUtils.getClassLevelMappingDestination(someDto);
 		
+		//TODO clean this up!
 		Field[] fields = mapperUtils.getFields(someDto.getClass());
 		for(Field field : fields){
 			if(!mapperUtils.isIgnored(field)){
@@ -113,7 +114,6 @@ public class Mapper{
 						field.setAccessible(true);
 						embeddedDto = field.get(someDto);
 						if(embeddedDto == null){
-							//TODO clean this up!
 							Object newEmbeddedDto = field.getType().newInstance();
 							String embeddedKey = mapperUtils.getMappedObjectKey(newEmbeddedDto);
 							String dtoKey = mapperUtils.getMappedObjectKey(someDto);
@@ -125,6 +125,21 @@ public class Mapper{
 							field.set(someDto, newEmbeddedDto);
 							objectMap.put(embeddedKey, embeddedMappedObject);
 							embeddedDto = field.get(someDto);
+						}else{
+							String embeddedKey = mapperUtils.getMappedObjectKey(embeddedDto);
+							if(objectMap.get(embeddedKey) == null){
+								String dtoKey = mapperUtils.getMappedObjectKey(someDto);
+								Object dtoMappedObject = objectMap.get(dtoKey);
+								String fieldName = mapperUtils.getDestinationFieldName(field);
+								Field dtoMappedObjectField = mapperUtils.getField(dtoMappedObject.getClass(), fieldName);
+								dtoMappedObjectField.setAccessible(true);
+								Object embeddedMappedObject = dtoMappedObjectField.get(dtoMappedObject);
+								if(embeddedMappedObject == null){
+									embeddedMappedObject = dtoMappedObjectField.getType().newInstance();
+									dtoMappedObjectField.set(dtoMappedObject, embeddedMappedObject);
+								}
+								objectMap.put(embeddedKey, embeddedMappedObject);
+							}
 						}
 						beginMapping(embeddedDto, objectMap, toObject);
 					} catch (IllegalArgumentException e) {
