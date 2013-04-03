@@ -39,4 +39,10 @@ public class Business {
 	public void setOwner(User owner) {
 		this.owner = owner;
 	}
+	public boolean isPublic(){
+		return founded != null;
+	}
+	public void setPublic(Boolean value){
+		System.out.println("This is a calculated value");
+	}
 }

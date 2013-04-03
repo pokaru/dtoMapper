@@ -257,7 +257,12 @@ public class Mapper{
 					throw new MapperException(e);
 				}
 			}else{
-				String getterMethodName = mapperUtils.getGetterMethodName(fieldName);
+				String getterMethodName = null;
+				if(field.getType().equals(Boolean.class)){
+					getterMethodName = mapperUtils.getIsMethodName(fieldName);
+				}else{
+					getterMethodName = mapperUtils.getGetterMethodName(fieldName);
+				}
 				Method method;
 				try {
 					method = mapperUtils.getMethod(object.getClass(), getterMethodName);

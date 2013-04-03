@@ -567,4 +567,37 @@ public class TestDTOMapper {
 			Assert.assertNotNull(userDto.getLastName());
 		}
 	}
+	
+	@Test
+	public void testBooleanMappingsToDto(){
+		Address address = new Address();
+		address.setDomestic(true);
+		
+		AddressDTO addressDto = new AddressDTO();
+		mapper.map(address, addressDto, false);
+		
+		Assert.assertTrue(addressDto.isDomestic());
+	}
+	
+	@Test
+	public void testBooleanMappingsFromDto(){
+		AddressDTO addressDto = new AddressDTO();
+		addressDto.setDomestic(true);
+		
+		Address address = new Address();
+		mapper.map(addressDto, address);
+		
+		Assert.assertTrue(address.isDomestic());
+	}
+	
+	@Test
+	public void testBooleanMethodMappingsToDto(){
+		Business business = new Business();
+		business.setFounded(new Date());
+		
+		BusinessDTO businessDto = new BusinessDTO();
+		mapper.map(business, businessDto, false);
+		
+		Assert.assertTrue(businessDto.isPublic());
+	}
 }

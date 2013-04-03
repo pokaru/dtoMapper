@@ -6,6 +6,7 @@ public class Address {
 	private Integer zip;
 	private String country;
 	private String street;
+	private boolean domestic;
 	
 	public String getCity() {
 		return city;
@@ -36,5 +37,11 @@ public class Address {
 	}
 	public void setStreet(String street) {
 		this.street = street;
+	}
+	public boolean isDomestic() {
+		return domestic;
+	}
+	public void setDomestic(boolean domestic) {
+		this.domestic = domestic;
 	}
 }

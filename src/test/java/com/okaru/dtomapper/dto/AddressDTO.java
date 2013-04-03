@@ -6,6 +6,7 @@ import com.okaru.dtomapper.annotation.MappedObject;
 @MappedObject(key="address")
 public class AddressDTO {
 	private String city;
+	private boolean domestic;
 	
 	@MappedField(field="state")
 	private String addressState;
@@ -30,5 +31,11 @@ public class AddressDTO {
 	}
 	public void setCity(String city) {
 		this.city = city;
+	}
+	public boolean isDomestic() {
+		return domestic;
+	}
+	public void setDomestic(boolean domestic) {
+		this.domestic = domestic;
 	}
 }

@@ -284,6 +284,18 @@ public class MapperUtils {
 	}
 
 	/**
+	 * A utility method for constructing an is method from a field name.
+	 * 
+	 * @param f
+	 * @return
+	 */
+	public String getIsMethodName(String fieldName) {
+		return "is"
+				+ new String(fieldName.charAt(0) + "").toUpperCase().concat(
+						fieldName.substring(1));
+	}
+
+	/**
 	 * A utility method for constructing a getter method from a field name.
 	 * 
 	 * @param f
