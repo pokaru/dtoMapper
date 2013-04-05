@@ -14,7 +14,7 @@ import com.okaru.dtomapper.model.User;
 public class CreateUsernameRule extends Rule<UserDTO>{
 
 	@Override
-	public void apply(UserDTO someDto, Map<String, Object> objectMap) {
+	public void fromDto(UserDTO someDto, Map<String, Object> objectMap) {
 		if((someDto.getFirstName() != null && someDto.getFirstName().length() > 0)){
 			User user = (User)objectMap.get("user");
 			user.setUsername((someDto.getFirstName().charAt(0) + 
@@ -23,7 +23,7 @@ public class CreateUsernameRule extends Rule<UserDTO>{
 	}
 
 	@Override
-	public void reverse(UserDTO someDto, Map<String, Object> objectMap) {
+	public void toDto(UserDTO someDto, Map<String, Object> objectMap) {
 		//No opertaion
 	}
 

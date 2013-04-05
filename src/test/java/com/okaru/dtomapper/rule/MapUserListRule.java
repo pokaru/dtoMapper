@@ -15,7 +15,7 @@ public class MapUserListRule extends Rule<WithListDTO>{
 	private Mapper mapper = new Mapper();
 
 	@Override
-	public void apply(WithListDTO someDto, Map<String, Object> objectMap) {
+	public void fromDto(WithListDTO someDto, Map<String, Object> objectMap) {
 		List<UserDTO> userDtoList = someDto.getUserDtoList();
 		List<User> userList = new ArrayList<User>();
 		for(UserDTO dto : userDtoList){
@@ -29,7 +29,7 @@ public class MapUserListRule extends Rule<WithListDTO>{
 	}
 
 	@Override
-	public void reverse(WithListDTO someDto, Map<String, Object> objectMap) {
+	public void toDto(WithListDTO someDto, Map<String, Object> objectMap) {
 		List<UserDTO> userDtoList = new ArrayList<UserDTO>();
 		List<User> userList = ((WithListModel)objectMap.get("withListModel")).getUserList();
 		for(User user : userList){

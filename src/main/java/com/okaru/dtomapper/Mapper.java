@@ -194,6 +194,8 @@ public class Mapper{
 			}else{
 				handleSetterMapping(field, someDto, fieldName, object, toObject, transferNulls);
 			}
+		}else if(object==null && transferNulls){
+			field=null;
 		}else{
 			throw new MapperException("No object with the key \"" 
 					+ destination + "\" found in objectMap. Referenced by " + 
@@ -300,9 +302,9 @@ public class Mapper{
 				Rule rule = getRuleFactory().getRule(ruleClass);
 				try{
 					if(!reverse){
-						rule.apply(someDto, objectMap);
+						rule.fromDto(someDto, objectMap);
 					}else{
-						rule.reverse(someDto, objectMap);
+						rule.toDto(someDto, objectMap);
 					}
 				} catch(Exception e){
 					throw new RuleException("The rule \"" + 
